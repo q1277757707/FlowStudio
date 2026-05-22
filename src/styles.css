@@ -509,6 +509,125 @@ body.is-panel-resizing * {
   gap: 4px;
 }
 
+/* Docs preview standalone page */
+html.page-docs-preview {
+  height: auto;
+  overflow: auto;
+}
+
+html.page-docs-preview body {
+  height: auto;
+  min-width: 0;
+  min-height: 100%;
+  overflow: auto;
+}
+
+html.page-docs-preview #app {
+  height: auto;
+  min-height: 100vh;
+  overflow: visible;
+}
+
+.docs-preview-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #fff;
+}
+
+.docs-preview-page__header {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--lc-border);
+  background: var(--lc-panel);
+}
+
+.docs-preview-page__title {
+  margin: 0;
+  color: #141414;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.docs-preview-page__body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.docs-preview-page__sidebar {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  width: 280px;
+  border-right: 1px solid var(--lc-border);
+  background: #fafafa;
+}
+
+.docs-preview-page__sidebar-title {
+  padding: 12px 16px;
+  color: #8c8c8c;
+  font-size: 12px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--lc-border);
+}
+
+.docs-preview-page__nav-scroll {
+  flex: 1;
+  padding: 8px;
+}
+
+.docs-preview-page__nav-item {
+  display: block;
+  width: 100%;
+  margin: 0 0 4px;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: #595959;
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+  word-break: break-all;
+}
+
+.docs-preview-page__nav-item:hover {
+  background: #f0f0f0;
+  color: #141414;
+}
+
+.docs-preview-page__nav-item.is-active {
+  background: #e6f4ff;
+  color: var(--lc-primary);
+  font-weight: 600;
+}
+
+.docs-preview-page__main {
+  flex: 1;
+  min-width: 0;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 32px 48px;
+  box-sizing: border-box;
+}
+
+.docs-preview-page__doc-title {
+  margin: 0 0 16px;
+  color: #141414;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.docs-preview-page .markdown-body {
+  font-size: 14px;
+}
+
 /* Event guide standalone page（覆盖设计器全局 overflow:hidden） */
 html.page-event-guide {
   height: auto;

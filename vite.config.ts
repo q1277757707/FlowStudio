@@ -3,16 +3,26 @@ import { fileURLToPath, URL } from 'node:url';
 import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
 import { viteApiMockPlugin } from './mock/viteApiMockPlugin';
+import { openPagesOnStart } from './vite/openPagesPlugin';
 
 const rootDir = fileURLToPath(new URL('.', import.meta.url));
+const isDocsOnly = process.env.npm_lifecycle_event === 'docs';
 
 export default defineConfig({
-  plugins: [vue(), viteApiMockPlugin()],
+  plugins: [
+    vue(),
+    viteApiMockPlugin(),
+    ...(isDocsOnly ? [] : [openPagesOnStart(['/docs-preview.html'])])
+  ],
+  server: {
+    open: isDocsOnly ? '/docs-preview.html' : '/'
+  },
   build: {
     rollupOptions: {
       input: {
         main: `${rootDir}/index.html`,
-        eventGuide: `${rootDir}/event-guide.html`
+        eventGuide: `${rootDir}/event-guide.html`,
+        docsPreview: `${rootDir}/docs-preview.html`
       }
     }
   },

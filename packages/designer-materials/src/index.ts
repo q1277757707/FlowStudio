@@ -1,6 +1,12 @@
 import { createGridCells, type ComponentType, type LowCodeNode } from '@designer-core/schema';
 import { fieldValidateTypeOptions } from '@designer-core/validation';
 import { createNodeId } from '@designer-core/id';
+import {
+  createFlatOptionDataSourceProps,
+  createTreeOptionDataSourceProps,
+  flatOptionDataSourceSetter,
+  treeOptionDataSourceSetter
+} from './optionDataSource';
 
 export type SetterType =
   | 'StringSetter'
@@ -337,6 +343,7 @@ export const materialList: MaterialMeta[] = [
     category: '表单',
     props: [
       ...baseFieldProps,
+      ...createFlatOptionDataSourceProps(),
       {
         field: 'options',
         label: '选项配置',
@@ -360,6 +367,7 @@ export const materialList: MaterialMeta[] = [
     setter: {
       label: 'StringSetter',
       placeholder: 'StringSetter',
+      ...flatOptionDataSourceSetter,
       options: 'OptionSetter',
       multiple: 'BooleanSetter',
       defaultValue: 'StringSetter',
@@ -378,6 +386,7 @@ export const materialList: MaterialMeta[] = [
         type: 'StringSetter',
         defaultValue: '单选'
       },
+      ...createFlatOptionDataSourceProps(),
       {
         field: 'options',
         label: '选项配置',
@@ -389,6 +398,7 @@ export const materialList: MaterialMeta[] = [
     events: ['change', 'visible-change'],
     setter: {
       label: 'StringSetter',
+      ...flatOptionDataSourceSetter,
       options: 'OptionSetter',
       ...validationSetter
     }
@@ -405,6 +415,7 @@ export const materialList: MaterialMeta[] = [
         type: 'StringSetter',
         defaultValue: '多选'
       },
+      ...createFlatOptionDataSourceProps(),
       {
         field: 'options',
         label: '选项配置',
@@ -416,6 +427,7 @@ export const materialList: MaterialMeta[] = [
     events: ['change'],
     setter: {
       label: 'StringSetter',
+      ...flatOptionDataSourceSetter,
       options: 'OptionSetter',
       ...validationSetter
     }
@@ -605,6 +617,7 @@ export const materialList: MaterialMeta[] = [
     category: '表单',
     props: [
       ...baseFieldProps,
+      ...createTreeOptionDataSourceProps(),
       {
         field: 'options',
         label: '选项配置',
@@ -616,6 +629,7 @@ export const materialList: MaterialMeta[] = [
     setter: {
       label: 'StringSetter',
       placeholder: 'StringSetter',
+      ...treeOptionDataSourceSetter,
       options: 'OptionSetter',
       ...validationSetter
     }
@@ -627,6 +641,7 @@ export const materialList: MaterialMeta[] = [
     category: '表单',
     props: [
       ...baseFieldProps,
+      ...createTreeOptionDataSourceProps(),
       {
         field: 'data',
         label: '数据配置',
@@ -644,6 +659,7 @@ export const materialList: MaterialMeta[] = [
     setter: {
       label: 'StringSetter',
       placeholder: 'StringSetter',
+      ...treeOptionDataSourceSetter,
       data: 'OptionSetter',
       multiple: 'BooleanSetter',
       ...validationSetter
@@ -797,3 +813,4 @@ export function materialHasValidationSettings(material: MaterialMeta): boolean {
 }
 
 export * from './dragRules';
+export * from './optionDataSource';

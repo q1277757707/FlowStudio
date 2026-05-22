@@ -2,6 +2,7 @@
 import type { LowCodeNode } from '@designer-core/schema';
 import FieldFormItem from '../FieldFormItem.vue';
 import { useFieldBinding } from '../../composables/useFieldBinding';
+import { useFieldOptions } from '../../composables/useFieldOptions';
 import type { RendererMode } from '../../types';
 
 const props = defineProps<{
@@ -10,13 +11,14 @@ const props = defineProps<{
 }>();
 
 const { runtime, node, modelValue, onUpdate } = useFieldBinding(props.node, props.mode);
+const { options } = useFieldOptions(() => props.node, () => props.mode);
 </script>
 
 <template>
   <FieldFormItem :mode="props.mode" :node="node">
     <el-cascader
       :model-value="modelValue([])"
-      :options="runtime.readOptions(node)"
+      :options="options"
       :placeholder="runtime.readString(node, 'placeholder', '请选择')"
       @update:model-value="onUpdate"
     />

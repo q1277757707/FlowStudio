@@ -27,3 +27,14 @@ curl -X POST http://localhost:5173/api/demo -H "Content-Type: application/json" 
 ```
 
 设计器事件动作默认 `url` 为 `/api/demo`，预览里配置「请求接口」即可直接测试。
+
+## `/api/options/list` · `/api/options/tree`
+
+供下拉、单选、多选、级联、树形选择等组件在属性里选择 **数据来源 → 接口请求** 时使用。
+
+| 路径 | 说明 |
+| --- | --- |
+| GET `/api/options/list` | 平铺选项，`data.list` |
+| GET `/api/options/tree` | 树形选项，`data.tree` |
+
+默认字段映射：`label` / `value` / `children`（树形）。

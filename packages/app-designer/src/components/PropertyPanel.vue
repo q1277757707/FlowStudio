@@ -7,7 +7,13 @@ import {
   getValidateOptionsForComponentType,
   validationPropFields
 } from '@designer-core/validation';
-import { getMaterialByType, materialHasValidationSettings } from '@designer-materials/index';
+import {
+  getMaterialByType,
+  isOptionApiProp,
+  isOptionSourceComponent,
+  isOptionStaticProp,
+  materialHasValidationSettings
+} from '@designer-materials/index';
 import { useDesignerStore } from '../store/designer';
 
 interface EditableOption {
@@ -49,10 +55,32 @@ const validateOptions = computed(() => {
 
 const showFormatRuleSelect = computed(() => validateOptions.value.length > 1);
 
+function isPropVisible(field: string): boolean {
+  const nodeType = designer.selectedNode?.type ?? '';
+
+  if (!isOptionSourceComponent(nodeType)) {
+    return true;
+  }
+
+  const source = String(propValue('optionsSource') ?? 'static');
+
+  if (isOptionApiProp(field)) {
+    return source === 'api';
+  }
+
+  if (isOptionStaticProp(field)) {
+    return source === 'static';
+  }
+
+  return true;
+}
+
 const visibleProps = computed(() => {
   const props = selectedMaterial.value?.props ?? [];
 
-  return props.filter((prop) => !validationPropFields.includes(prop.field as (typeof validationPropFields)[number]));
+  return props
+    .filter((prop) => !validationPropFields.includes(prop.field as (typeof validationPropFields)[number]))
+    .filter((prop) => isPropVisible(prop.field));
 });
 
 function propValue(field: string) {

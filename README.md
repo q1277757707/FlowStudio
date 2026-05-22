@@ -12,7 +12,8 @@
 
 ```bash
 npm install
-npm run dev
+npm run dev    # 设计器 + 文档预览（自动打开两个页面）
+npm run docs   # 仅打开文档预览
 ```
 
 ## 文档
