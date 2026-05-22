@@ -25,7 +25,7 @@ npm run dev
 | 右侧 **属性** | 改标签、校验等 |
 | 底部 **事件配置** | 配置触发事件与动作链（可拖动中间横条调整高度） |
 | 底部 **使用文档** | 在新标签页打开本指南（`/docs-preview.html?doc=event-user-guide.md`） |
-| 顶部 **预览** | **只有预览里事件才会执行** |
+| 顶部 **预览** | 全屏预览弹窗（与画布相同，均可触发事件） |
 
 ### 3. 配置一条事件（最短路径）
 
@@ -33,18 +33,10 @@ npm run dev
 2. 点击该输入框，使其处于选中（右侧出现属性）  
 3. 底部切到 **事件配置** → 左侧选 **change**  
 4. 右侧 **添加动作** → 选 **显示消息**  
-5. 点击下方动作卡片，在 **动作配置** 里把 JSON 改成：
+5. 点击下方动作卡片，在 **动作配置** 表单里把「消息内容」改为：`你输入了：{{event.value}}`  
+6. 在画布或点顶部 **预览**，在输入框里改值 → 应弹出成功提示  
 
-```json
-{
-  "type": "success",
-  "content": "你输入了：{{event.value}}"
-}
-```
-
-6. 点顶部 **预览**，在输入框里改值 → 应弹出成功提示  
-
-> **注意**：设计态画布上改值**不会**跑事件，必须点 **预览**。
+> **说明**：**画布**与**预览**里改字段值都会执行 `change` 等事件；**显示/隐藏**（`setVisible`）仍仅在预览里生效。
 
 ---
 
@@ -57,20 +49,29 @@ npm run dev
 │ 触发事件      │ 动作列表              [+ 添加动作]        │
 │ · change     │  [设置变量] → [显示消息] → ...            │
 │ · focus      │                                          │
-│ · blur       │ 动作配置 · 显示消息                       │
-│              │ { "type": "success", "content": "..." }  │
+│ · blur       │ 动作配置 · 显示消息（可视化表单）            │
+│              │ [高级：JSON 编辑] 可折叠                  │
 └──────────────┴──────────────────────────────────────────┘
 ```
+
+### 底部 Tab 实现状态
+
+| Tab | 状态 |
+| --- | --- |
+| **事件配置** | 已接入：动作列表、可视化配置、条件分支编辑器 |
+| **变量** | 占位说明（变量由「设置变量」动作写入，暂无列表 UI） |
+| **数据源** | 占位，后续版本 |
+| **页面设置** | 占位（`pageLoad` 等页面级事件需在 Schema 中手写） |
 
 ### 操作步骤
 
 1. **先选中画布上的组件**（未选中会提示「请选择组件」）  
 2. **触发事件**：左侧列表来自该物料支持的 events（如 Input 有 `change` / `focus` / `blur`）  
 3. **添加动作**：在「动作列表」标题右侧下拉选择动作类型  
-4. **编辑 config**：点击某个动作卡片，在下方文本框改 JSON（必须是合法 JSON，保存时自动写入 Schema）  
+4. **编辑 config**：点击动作卡片，在下方**可视化表单**中配置；复杂项可展开 **「高级：JSON 编辑」**  
 5. **删除动作**：动作卡片右上角删除按钮  
 
-动作按 **从左到右** 的顺序依次执行（动作链）。
+动作按 **从左到右** 的顺序依次执行（动作链）。常用动作已提供表单，无需手写 JSON。
 
 ---
 
@@ -110,12 +111,13 @@ npm run dev
 
 ### 1. 设置变量 `setVariable`
 
-把值写入页面变量 `variables`，供后续动作或表达式使用。
+把值写入页面变量 `variables`，供后续动作或表达式使用。支持一次配置多行变量。
 
 ```json
 {
-  "key": "userName",
-  "value": "{{event.value}}"
+  "variables": [
+    { "key": "userName", "value": "{{event.value}}" }
+  ]
 }
 ```
 
@@ -177,13 +179,45 @@ POST 示例（`params` 会作为 JSON body 提交）：
 }
 ```
 
-请求成功后，响应会写入 `variables.lastResponse`，下一条动作可用 `{{variables.lastResponse.data}}`。
+请求成功后，整段响应写入 `variables.lastResponse`（即上面的 JSON 根对象），下一条动作或赋值表达式可用 `{{variables.lastResponse.data.list}}` 等路径。
+
+**请求成功后给组件赋值**（同一动作内，无需再等下一条）：
+
+| 目标组件 | 表达式示例 | 效果 |
+| --- | --- | --- |
+| 下拉 Select | `{{variables.lastResponse.data.list}}` | 更新选项（需为 `{ label, value }[]`） |
+| 下拉 Select | `{{variables.lastResponse.data.list[0].value}}` | 设置当前选中值 |
+| 任意字段 | `[]` 或 `{{[]}}` | 清空动态选项与选中值（用于条件 false 分支） |
+
+下拉选项也可在右侧属性里将 **数据来源** 设为 **接口请求**，默认地址 `/api/options/list`（Mock，见 `mock/README.md`）。
 
 > 外网演示也可用 `https://jsonplaceholder.typicode.com/posts/1`；日常联调建议用 `/api/demo`。
 
 ---
 
-### 4. 弹窗 `dialog`
+### 4. 组件赋值 `setFormValue`
+
+独立动作，或在 **条件分支** 的 true/false 子链中使用。配置方式与「请求成功后赋值」相同：`assignments` 数组。
+
+```json
+{
+  "assignments": [
+    {
+      "componentId": "select_xxx",
+      "value": "{{variables.lastResponse.data.list}}"
+    }
+  ]
+}
+```
+
+**条件分支典型用法**：
+
+- **true**：`request` → 或 `setFormValue` 赋 `{{variables.lastResponse.data.list}}`  
+- **false**：`setFormValue`，同一 `componentId`，表达式填 **`[]`**，清空此前写入的选项  
+
+---
+
+### 5. 弹窗 `dialog`
 
 ```json
 {
@@ -198,7 +232,7 @@ POST 示例（`params` 会作为 JSON body 提交）：
 
 ---
 
-### 5. 页面跳转 `navigate`
+### 6. 页面跳转 `navigate`
 
 ```json
 {
@@ -208,7 +242,7 @@ POST 示例（`params` 会作为 JSON body 提交）：
 
 ---
 
-### 6. 延迟 `delay`
+### 7. 延迟 `delay`
 
 ```json
 {
@@ -220,39 +254,36 @@ POST 示例（`params` 会作为 JSON body 提交）：
 
 ---
 
-### 7. 条件分支 `condition`
+### 8. 条件分支 `condition`
 
-根据表达式结果执行不同子动作链。
+根据表达式结果执行 **trueActions** 或 **falseActions** 子动作链。设计器内提供 **条件表达式** 输入框与 **成立 / 不成立** 两套子动作列表（可视化添加子动作，无需手写 JSON）。
+
+表达式示例：`{{event.value}} === 'option1'`、`{{form['input_001']}}` 等。
+
+JSON 结构参考：
 
 ```json
 {
-  "expression": "{{event.value}}",
+  "expression": "{{event.value}} === 'option1'",
   "trueActions": [
-    {
-      "action": "message",
-      "config": {
-        "type": "success",
-        "content": "有内容：{{event.value}}"
-      }
-    }
+    { "action": "request", "config": { "url": "/api/demo", "method": "GET", "params": {} } }
   ],
   "falseActions": [
     {
-      "action": "message",
+      "action": "setFormValue",
       "config": {
-        "type": "warning",
-        "content": "请输入内容"
+        "assignments": [{ "componentId": "select_xxx", "value": "[]" }]
       }
     }
   ]
 }
 ```
 
-> 子动作里写 `"action"` 字段即可，不必写 `id`（引擎会自动处理）。
+> 子动作需带 `action` / `type`；设计器保存时会自动生成 `id`。
 
 ---
 
-### 8. 循环 `loop`
+### 9. 循环 `loop`
 
 遍历数组，每条执行 `actions` 里的子动作。
 
@@ -275,12 +306,14 @@ POST 示例（`params` 会作为 JSON body 提交）：
 需先用 **设置变量** 写入数组，例如：
 
 ```json
-{ "key": "list", "value": ["苹果", "香蕉", "橙子"] }
+{
+  "variables": [{ "key": "list", "value": ["苹果", "香蕉", "橙子"] }]
+}
 ```
 
 ---
 
-### 9. 自定义 JS `customJS`
+### 10. 自定义 JS `customJS`
 
 在沙箱中执行脚本（可访问 `form`、`variables`、`event`、`message`）。
 
@@ -294,7 +327,7 @@ POST 示例（`params` 会作为 JSON body 提交）：
 
 ---
 
-### 10. 刷新页面 `reload`
+### 11. 刷新页面 `reload`
 
 ```json
 {}
@@ -302,9 +335,9 @@ POST 示例（`params` 会作为 JSON body 提交）：
 
 ---
 
-### 11. 显示/隐藏组件 `setVisible`
+### 12. 显示/隐藏组件 `setVisible`
 
-仅 **预览** 有效；设计画布仍显示全部组件。
+仅 **预览** 生效；设计画布仍显示全部组件。
 
 ```json
 {
@@ -317,7 +350,7 @@ POST 示例（`params` 会作为 JSON body 提交）：
 
 ---
 
-### 12. 触发嵌套事件 `emit`
+### 13. 触发嵌套事件 `emit`
 
 ```json
 {
@@ -343,14 +376,7 @@ POST 示例（`params` 会作为 JSON body 提交）：
 
 1. 拖入 **单行输入**，右侧把标签改为「姓名」  
 2. 选中该组件 → 事件 **change** → 添加 **设置变量**  
-3. config：
-
-```json
-{
-  "key": "userName",
-  "value": "{{event.value}}"
-}
-```
+3. **设置变量**：变量名 `userName`，值 `{{event.value}}`（或 JSON：`variables` 数组）  
 
 4. 再添加 **显示消息**：
 
@@ -369,22 +395,14 @@ POST 示例（`params` 会作为 JSON body 提交）：
 
 **目标**：在「输入 A」里打字，「输入 B」里实时显示相同内容。
 
-> 说明：目前没有单独的「设置字段值」动作，用 **自定义 JS** 写入 `form` 即可（`form` 的 key 是组件 **id**）。
+**操作（推荐：组件赋值）**：
 
-**操作**：
+1. 拖入两个 **单行输入**，记下节点 ID（如 `input_a`、`input_b`）  
+2. 选中 **输入 A** → **change** → 添加 **组件赋值**  
+3. 目标组件选 **输入 B**，赋值表达式：`{{event.value}}` 或 `{{form['input_a']}}`  
+4. 画布或 **预览** 中在输入 A 打字 → 输入 B 应同步  
 
-1. 拖入两个 **单行输入**，标签分别改为「输入 A」「输入 B」  
-2. 分别选中两个输入框，在右侧 **属性** 面板顶部查看 **节点 ID**（可点复制按钮），例如 `input_abc111` 和 `input_def222`  
-3. **只选中「输入 A」** → 事件 **change** → 添加 **自定义 JS**  
-4. config（把 `input_def222` 换成你第二个输入框的真实 id）：
-
-```json
-{
-  "code": "form['input_def222'] = event.value"
-}
-```
-
-5. **预览** → 在输入 A 里输入 → 输入 B 应同步显示相同文字  
+**备选：自定义 JS**（`form['input_b'] = event.value`）。
 
 **注意**：
 
@@ -616,7 +634,7 @@ POST 示例（`params` 会作为 JSON body 提交）：
 
 1. 优先打开上表 **专用示例文档** 按步骤配置  
 2. 或打开 JSON，复制对应节点的 `events` / `config` 到设计器 **动作配置**（`componentId` 改成你的节点 ID）  
-3. 整份 Schema 导入能力接入后可一键加载  
+3. **整份 Schema 一键导入**：尚未接入，需手动复制 `events` / `config`  
 
 ---
 
@@ -624,8 +642,10 @@ POST 示例（`params` 会作为 JSON body 提交）：
 
 | 现象 | 原因 / 处理 |
 | --- | --- |
-| 改了 config 没反应 | JSON 语法错误（多逗号、单引号等）不会写入，请检查格式 |
-| 画布上操作没触发 | 事件仅在 **预览** 模式执行 |
+| 改了 config 没反应 | 「高级 JSON」语法错误不会写入；可视化表单会直接保存 |
+| 画布上操作没触发 | 字段 change 等在画布也会执行；若仍无反应请确认已配置动作且选中的是正确组件 |
+| 赋 list 下拉仍空 | 表达式路径是否为 `data.list`；false 分支是否需 `[]` 清空后再试 |
+| 请求有赋值但不生效 | 勿在请求前解析 `lastResponse`；成功后赋值应在同一 request 或之后动作 |
 | 表达式显示原文 `{{...}}` | 变量名写错，或 `variables` 里还没有该 key |
 | `{{form.xxx}}` 为空 | `xxx` 必须是组件 **id**，在 Schema 里查 |
 | 按钮没配事件点了也有提示 | 默认行为：无 `click` 动作时显示「按钮已点击」 |

@@ -11,14 +11,26 @@ export const actionTypeList: ActionTypeMeta[] = [
   {
     type: 'setVariable',
     label: '设置变量',
-    description: '写入页面变量，支持 {{ }} 表达式',
-    defaultConfig: { key: 'varName', value: '{{event.value}}' }
+    description:
+      '可一次写入多个页面变量（值支持 {{ }} 表达式），预览中用 {{variables.变量名}} 读取。',
+    defaultConfig: {
+      variables: [{ key: 'varName', value: '{{event.value}}' }]
+    }
   },
   {
     type: 'setVisible',
     label: '显示/隐藏组件',
     description: '控制指定节点在预览中的显隐（componentId 为节点 ID）',
     defaultConfig: { componentId: 'target_node_id', visible: true }
+  },
+  {
+    type: 'setFormValue',
+    label: '组件赋值',
+    description:
+      '写入目标组件：下拉等赋 list 更新选项、list[0].value 设选中值、[] 清空；其它组件写 form 值。',
+    defaultConfig: {
+      assignments: [{ componentId: '', value: '{{variables.lastResponse}}' }]
+    }
   },
   {
     type: 'message',
@@ -29,8 +41,14 @@ export const actionTypeList: ActionTypeMeta[] = [
   {
     type: 'request',
     label: '请求接口',
-    description: '调用 HTTP 接口',
-    defaultConfig: { url: '/api/demo', method: 'GET', params: {} }
+    description:
+      '调用 HTTP 接口；参数支持 {{ }} 表达式；成功后写入 variables.lastResponse，并可配置「成功后赋值」写入组件。',
+    defaultConfig: {
+      url: '/api/demo',
+      method: 'GET',
+      params: { keyword: '{{event.value}}' },
+      assignments: []
+    }
   },
   {
     type: 'dialog',
@@ -88,4 +106,21 @@ export const actionTypeList: ActionTypeMeta[] = [
 
 export function getActionMeta(type: EventActionType): ActionTypeMeta | undefined {
   return actionTypeList.find((item) => item.type === type);
+}
+
+/** 支持可视化表单配置的动作（不含条件分支、循环、自定义 JS 等） */
+export const visualActionConfigTypes = actionTypeList.filter(
+  (item) => !['condition', 'loop', 'emit', 'customJS'].includes(item.type)
+  // setFormValue 允许嵌套在条件分支内
+);
+
+/** @deprecated 使用 visualActionConfigTypes */
+export const nestedBranchActionTypes = visualActionConfigTypes;
+
+export function supportsVisualActionConfig(type: EventActionType | undefined): boolean {
+  if (!type) {
+    return false;
+  }
+
+  return visualActionConfigTypes.some((item) => item.type === type);
 }

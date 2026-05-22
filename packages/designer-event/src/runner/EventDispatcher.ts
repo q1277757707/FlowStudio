@@ -1,7 +1,7 @@
-import type { EventAction } from '@designer-core/schema';
-import { mergeEventPayload } from '../context/RuntimeContext';
-import { ActionRunner } from './ActionRunner';
-import type { EventDispatchOptions, RuntimeContext } from '../types';
+import type { EventAction } from "@designer-core/schema";
+import { mergeEventPayload } from "../context/RuntimeContext";
+import { ActionRunner } from "./ActionRunner";
+import type { EventDispatchOptions, RuntimeContext } from "../types";
 
 export class EventDispatcher {
   private readonly runner: ActionRunner;
@@ -17,12 +17,12 @@ export class EventDispatcher {
   async dispatch(
     actions: EventAction[] | undefined,
     ctx: RuntimeContext,
-    options: EventDispatchOptions = {}
+    options: EventDispatchOptions = {},
   ): Promise<void> {
     const payload = {
       name: options.eventName,
       componentId: options.componentId,
-      ...options.payload
+      ...options.payload,
     };
 
     const context = mergeEventPayload(ctx, payload);

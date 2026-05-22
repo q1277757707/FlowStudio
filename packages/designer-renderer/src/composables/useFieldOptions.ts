@@ -15,6 +15,11 @@ export function useFieldOptions(
 
   const options = computed(() => {
     const current = toValue(node);
+    const override = runtime.getFieldOptionsOverride(current.id);
+
+    if (override?.length) {
+      return override;
+    }
 
     if (runtime.readString(current, 'optionsSource', 'static') === 'api') {
       return remoteOptions.value;

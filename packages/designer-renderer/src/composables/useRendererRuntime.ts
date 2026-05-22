@@ -1,10 +1,29 @@
-import { inject, provide, reactive, ref, type InjectionKey, type Ref } from 'vue';
-import { ElMessage, ElMessageBox, type ButtonProps } from 'element-plus';
-import { createGridCells, findNodeById, type LowCodeGridCell, type LowCodeNode } from '@designer-core/schema';
-import { httpRequest, runEventActions } from '@designer-event/index';
-import type { RuntimeContext } from '@designer-event/types';
-import type { ActionLog } from '@designer-event/types';
-import type { DraggableChangeEvent, OptionItem, RendererMode } from '../types';
+import {
+  inject,
+  provide,
+  reactive,
+  ref,
+  type InjectionKey,
+  type Ref,
+} from "vue";
+import { ElMessage, ElMessageBox, type ButtonProps } from "element-plus";
+import {
+  createGridCells,
+  findNodeById,
+  type LowCodeGridCell,
+  type LowCodeNode,
+} from "@designer-core/schema";
+import { httpRequest, runEventActions } from "@designer-event/index";
+import type { RuntimeContext } from "@designer-event/types";
+import type { ActionLog } from "@designer-event/types";
+import type { DraggableChangeEvent, OptionItem, RendererMode } from "../types";
+import {
+  isEmptyOptionClearValue,
+  isOptionFieldType,
+  isOptionListAssignment,
+  normalizeToOptionItems,
+  parseOptionClearLiteral,
+} from "../utils/optionListValue";
 
 export interface RendererRuntime {
   activeCellId: Ref<string>;
@@ -25,21 +44,24 @@ export interface RendererRuntime {
   selectDefaultValue: (node: LowCodeNode) => unknown;
   setActiveCell: (cellId: string) => void;
   setFieldValue: (node: LowCodeNode, value: unknown) => void;
-  buttonType: (node: LowCodeNode) => ButtonProps['type'];
+  buttonType: (node: LowCodeNode) => ButtonProps["type"];
   createEventContext: (payload?: Record<string, unknown>) => RuntimeContext;
   dispatchNodeEvent: (
     node: LowCodeNode,
     eventName: string,
-    payload?: Record<string, unknown>
+    payload?: Record<string, unknown>,
   ) => Promise<void>;
   eventLogs: Ref<ActionLog[]>;
   pushEventLog: (log: ActionLog) => void;
   clearEventLogs: () => void;
   isComponentVisible: (componentId: string, mode: RendererMode) => boolean;
   setComponentVisible: (componentId: string, visible: boolean) => void;
+  setFormFieldValue: (componentId: string, value: unknown) => void;
+  getFieldOptionsOverride: (nodeId: string) => OptionItem[] | undefined;
 }
 
-const rendererRuntimeKey: InjectionKey<RendererRuntime> = Symbol('rendererRuntime');
+const rendererRuntimeKey: InjectionKey<RendererRuntime> =
+  Symbol("rendererRuntime");
 
 export interface RendererRuntimeOptions {
   selectNode: (id: string) => void;
@@ -47,12 +69,15 @@ export interface RendererRuntimeOptions {
   getRootNodes?: () => LowCodeNode[];
 }
 
-export function provideRendererRuntime(options: RendererRuntimeOptions): RendererRuntime {
+export function provideRendererRuntime(
+  options: RendererRuntimeOptions,
+): RendererRuntime {
   const { selectNode, onSchemaChange, getRootNodes } = options;
-  const activeCellId = ref('');
+  const activeCellId = ref("");
   const runtimeValues = reactive<Record<string, unknown>>({});
   const pageVariables = reactive<Record<string, unknown>>({});
   const componentVisibility = reactive<Record<string, boolean>>({});
+  const runtimeOptionOverrides = reactive<Record<string, OptionItem[]>>({});
   const eventLogs = ref<ActionLog[]>([]);
 
   function ensureChildren(node: LowCodeNode): LowCodeNode[] {
@@ -60,29 +85,33 @@ export function provideRendererRuntime(options: RendererRuntimeOptions): Rendere
     return node.children;
   }
 
-  function readString(node: LowCodeNode, key: string, fallback = ''): string {
+  function readString(node: LowCodeNode, key: string, fallback = ""): string {
     const value = node.props[key];
-    return typeof value === 'string' ? value : fallback;
+    return typeof value === "string" ? value : fallback;
   }
 
   function readNumber(node: LowCodeNode, key: string, fallback = 0): number {
     const value = node.props[key];
-    return typeof value === 'number' ? value : fallback;
+    return typeof value === "number" ? value : fallback;
   }
 
-  function readBoolean(node: LowCodeNode, key: string, fallback = false): boolean {
+  function readBoolean(
+    node: LowCodeNode,
+    key: string,
+    fallback = false,
+  ): boolean {
     const value = node.props[key];
-    return typeof value === 'boolean' ? value : fallback;
+    return typeof value === "boolean" ? value : fallback;
   }
 
-  function readOptions(node: LowCodeNode, key = 'options'): OptionItem[] {
+  function readOptions(node: LowCodeNode, key = "options"): OptionItem[] {
     const value = node.props[key];
     return Array.isArray(value) ? (value as OptionItem[]) : [];
   }
 
   function ensureGridCells(node: LowCodeNode): LowCodeGridCell[] {
-    const rows = readNumber(node, 'rows', 2);
-    const cols = readNumber(node, 'cols', 2);
+    const rows = readNumber(node, "rows", 2);
+    const cols = readNumber(node, "cols", 2);
     node.gridCells = createGridCells(rows, cols, node.gridCells);
     return node.gridCells;
   }
@@ -91,7 +120,7 @@ export function provideRendererRuntime(options: RendererRuntimeOptions): Rendere
     return Array.isArray(value) ? [...value] : value;
   }
 
-  function fieldValue(node: LowCodeNode, fallback: unknown = '') {
+  function fieldValue(node: LowCodeNode, fallback: unknown = "") {
     if (!Object.hasOwn(runtimeValues, node.id)) {
       runtimeValues[node.id] = runtimeDefault(fallback);
     }
@@ -104,26 +133,26 @@ export function provideRendererRuntime(options: RendererRuntimeOptions): Rendere
   }
 
   function selectDefaultValue(node: LowCodeNode) {
-    if (readBoolean(node, 'multiple')) {
+    if (readBoolean(node, "multiple")) {
       const value = node.props.defaultValue;
       return Array.isArray(value) ? [...value] : [];
     }
 
     const value = node.props.defaultValue;
 
-    if (typeof value === 'string' && value) {
+    if (typeof value === "string" && value) {
       return value;
     }
 
-    if (typeof value === 'number') {
+    if (typeof value === "number") {
       return value;
     }
 
-    return '';
+    return "";
   }
 
   function isComponentVisible(componentId: string, mode: RendererMode) {
-    if (mode === 'edit') {
+    if (mode === "edit") {
       return true;
     }
 
@@ -134,51 +163,91 @@ export function provideRendererRuntime(options: RendererRuntimeOptions): Rendere
     componentVisibility[componentId] = visible;
 
     const node = findNodeById(getRootNodes?.() ?? [], componentId);
-
-    if (node?.events?.['visible-change']?.length) {
-      void dispatchNodeEvent(node, 'visible-change', {
+    if (node?.events?.["visible-change"]?.length) {
+      console.log("node.events", {
         visible,
-        value: runtimeValues[node.id]
+        value: runtimeValues[node.id],
+      });
+      void dispatchNodeEvent(node, "visible-change", {
+        visible,
+        value: runtimeValues[node.id],
       });
     }
   }
 
-  function dateDefaultValue(node: LowCodeNode) {
-    return readString(node, 'dateType', 'date') === 'daterange' ? [] : '';
+  function getFieldOptionsOverride(nodeId: string): OptionItem[] | undefined {
+    return runtimeOptionOverrides[nodeId];
   }
 
-  function buttonType(node: LowCodeNode): ButtonProps['type'] {
-    const value = readString(node, 'type');
-    return value as ButtonProps['type'];
+  function clearOptionFieldState(node: LowCodeNode, componentId: string) {
+    delete runtimeOptionOverrides[componentId];
+    runtimeValues[node.id] = readBoolean(node, "multiple") ? [] : "";
+  }
+
+  function setFormFieldValue(componentId: string, value: unknown) {
+    const node = findNodeById(getRootNodes?.() ?? [], componentId);
+
+    if (!node) {
+      return;
+    }
+
+    if (isOptionFieldType(node.type)) {
+      const clearLiteral = parseOptionClearLiteral(value);
+
+      if (clearLiteral === "clear" || isEmptyOptionClearValue(value)) {
+        clearOptionFieldState(node, componentId);
+        return;
+      }
+
+      if (isOptionListAssignment(node.type, value)) {
+        const options = normalizeToOptionItems(value);
+
+        if (options) {
+          runtimeOptionOverrides[componentId] = options;
+          return;
+        }
+      }
+    }
+
+    runtimeValues[node.id] = value;
+  }
+
+  function dateDefaultValue(node: LowCodeNode) {
+    return readString(node, "dateType", "date") === "daterange" ? [] : "";
+  }
+
+  function buttonType(node: LowCodeNode): ButtonProps["type"] {
+    const value = readString(node, "type");
+    return value as ButtonProps["type"];
   }
 
   function gridStyle(node: LowCodeNode, mode: RendererMode) {
-    const rows = Math.max(readNumber(node, 'rows', 2), 1);
-    const cols = Math.max(readNumber(node, 'cols', 2), 1);
+    const rows = Math.max(readNumber(node, "rows", 2), 1);
+    const cols = Math.max(readNumber(node, "cols", 2), 1);
 
-    if (mode === 'preview') {
+    if (mode === "preview") {
       return {
-        display: 'grid',
+        display: "grid",
         gridTemplateColumns: `repeat(${cols}, 1fr)`,
         gridTemplateRows: `repeat(${rows}, auto)`,
-        gap: '0',
-        alignContent: 'start',
-        alignItems: 'start'
+        gap: "0",
+        alignContent: "start",
+        alignItems: "start",
       };
     }
 
     return {
-      display: 'grid',
+      display: "grid",
       gridTemplateColumns: `repeat(${cols}, minmax(120px, 1fr))`,
       gridTemplateRows: `repeat(${rows}, minmax(120px, auto))`,
-      gap: '12px',
-      alignContent: 'stretch',
-      alignItems: 'stretch'
+      gap: "12px",
+      alignContent: "stretch",
+      alignItems: "stretch",
     };
   }
 
   function onChildChange(event: DraggableChangeEvent<LowCodeNode>) {
-    activeCellId.value = '';
+    activeCellId.value = "";
 
     if (event.added) {
       selectNode(event.added.element.id);
@@ -192,11 +261,11 @@ export function provideRendererRuntime(options: RendererRuntimeOptions): Rendere
   }
 
   function clearActiveCell() {
-    activeCellId.value = '';
+    activeCellId.value = "";
   }
 
   function handleNodeClick(id: string, mode: RendererMode) {
-    if (mode === 'edit') {
+    if (mode === "edit") {
       selectNode(id);
     }
   }
@@ -209,55 +278,69 @@ export function provideRendererRuntime(options: RendererRuntimeOptions): Rendere
     eventLogs.value = [];
   }
 
-  function createEventContext(payload?: Record<string, unknown>): RuntimeContext {
+  function createEventContext(
+    payload?: Record<string, unknown>,
+  ): RuntimeContext {
     return {
       form: runtimeValues,
       variables: pageVariables,
       pageState: pageVariables,
       components: {},
       event: payload ?? {},
-      message: (options: string | { message?: string; type?: string; content?: string }) => {
-        if (typeof options === 'string') {
+      message: (
+        options: string | { message?: string; type?: string; content?: string },
+      ) => {
+        if (typeof options === "string") {
           ElMessage.info(options);
           return;
         }
 
         ElMessage({
-          type: (options.type as 'success' | 'warning' | 'info' | 'error') ?? 'info',
-          message: options.message ?? options.content ?? ''
+          type:
+            (options.type as "success" | "warning" | "info" | "error") ??
+            "info",
+          message: options.message ?? options.content ?? "",
         });
       },
       dialog: async (options) => {
-        if (options.type === 'confirm') {
+        if (options.type === "confirm") {
           try {
-            await ElMessageBox.confirm(options.message ?? '', options.title ?? '确认', {
-              type: 'warning'
-            });
+            await ElMessageBox.confirm(
+              options.message ?? "",
+              options.title ?? "确认",
+              {
+                type: "warning",
+              },
+            );
             return true;
           } catch {
             return false;
           }
         }
 
-        await ElMessageBox.alert(options.message ?? '', options.title ?? '提示');
+        await ElMessageBox.alert(
+          options.message ?? "",
+          options.title ?? "提示",
+        );
         return true;
       },
       router: {
         push: (path: string) => {
           window.location.assign(path);
-        }
+        },
       },
       setComponentVisible,
+      setFormFieldValue,
       api: {
-        request: httpRequest
-      }
+        request: httpRequest,
+      },
     };
   }
 
   async function dispatchNodeEvent(
     node: LowCodeNode,
     eventName: string,
-    payload?: Record<string, unknown>
+    payload?: Record<string, unknown>,
   ) {
     const actions = node.events?.[eventName];
 
@@ -271,10 +354,10 @@ export function provideRendererRuntime(options: RendererRuntimeOptions): Rendere
         componentId: node.id,
         payload,
         continueOnError: true,
-        onLog: pushEventLog
+        onLog: pushEventLog,
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : '事件执行失败';
+      const message = error instanceof Error ? error.message : "事件执行失败";
       ElMessage.error(message);
     }
   }
@@ -283,11 +366,11 @@ export function provideRendererRuntime(options: RendererRuntimeOptions): Rendere
     const actions = node.events?.click;
 
     if (actions?.length) {
-      await dispatchNodeEvent(node, 'click');
+      await dispatchNodeEvent(node, "click");
       return;
     }
 
-    ElMessage.info('按钮已点击');
+    ElMessage.info("按钮已点击");
   }
 
   const runtime: RendererRuntime = {
@@ -316,7 +399,9 @@ export function provideRendererRuntime(options: RendererRuntimeOptions): Rendere
     pushEventLog,
     clearEventLogs,
     isComponentVisible,
-    setComponentVisible
+    setComponentVisible,
+    setFormFieldValue,
+    getFieldOptionsOverride,
   };
 
   provide(rendererRuntimeKey, runtime);
@@ -327,7 +412,7 @@ export function useRendererRuntime(): RendererRuntime {
   const runtime = inject(rendererRuntimeKey);
 
   if (!runtime) {
-    throw new Error('Renderer runtime is not provided.');
+    throw new Error("Renderer runtime is not provided.");
   }
 
   return runtime;

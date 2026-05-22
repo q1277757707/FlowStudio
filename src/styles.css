@@ -891,9 +891,241 @@ html.page-event-guide #app {
   font-size: 12px;
 }
 
+.action-config__form {
+  margin-bottom: 12px;
+}
+
+.action-config__hint {
+  margin: 6px 0 0;
+  color: var(--lc-text-secondary);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.action-config__error {
+  margin: 6px 0 0;
+  color: #ff4d4f;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.action-config__json-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.action-config__json-label {
+  color: #262626;
+  font-size: 12px;
+  font-weight: 600;
+}
+
 .action-config__editor textarea {
   font-family: "Fira Code", Consolas, monospace;
   font-size: 12px;
+}
+
+.action-config__advanced {
+  margin-top: 12px;
+  border: none;
+}
+
+.action-config__advanced .el-collapse-item__header {
+  height: 32px;
+  font-size: 12px;
+  color: var(--lc-text-secondary);
+}
+
+.condition-branch__expression {
+  margin-bottom: 8px;
+}
+
+.condition-branch__section {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--lc-border);
+  border-radius: 6px;
+  background: #fafafa;
+}
+
+.condition-branch__section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.condition-branch__section-title {
+  color: #262626;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.condition-branch__hint {
+  margin: 4px 0 0;
+  color: var(--lc-text-secondary);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.condition-branch__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.condition-branch__card {
+  padding: 8px 10px;
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.condition-branch__card.is-selected {
+  border-color: var(--lc-primary);
+  box-shadow: 0 0 0 1px rgb(22 119 255 / 15%);
+}
+
+.condition-branch__card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.condition-branch__card-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #e6f4ff;
+  color: var(--lc-primary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.condition-branch__card-label {
+  flex: 1;
+  font-size: 12px;
+}
+
+.condition-branch__detail {
+  margin-top: 8px;
+  padding: 10px;
+  border-radius: 4px;
+  background: #f5f5f5;
+}
+
+.nested-action-form__desc {
+  margin: 0 0 8px;
+  color: var(--lc-text-secondary);
+  font-size: 11px;
+}
+
+.nested-action-form__field-hint {
+  margin: 6px 0 0;
+  color: var(--lc-text-secondary);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.set-variable-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+  align-items: end;
+  margin-bottom: 8px;
+  padding: 8px;
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.set-variable-form__field {
+  margin-bottom: 0;
+}
+
+.set-variable-form__remove {
+  margin-bottom: 4px;
+}
+
+.set-variable-form__row.is-active {
+  border-color: var(--lc-primary);
+  box-shadow: 0 0 0 1px rgb(22 119 255 / 12%);
+}
+
+.request-config-form__params-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 4px 0 8px;
+}
+
+.request-config-form__params-title {
+  color: #262626;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.request-config-form__params-tip {
+  color: var(--lc-text-secondary);
+  font-size: 11px;
+}
+
+.request-config-form__quick {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  padding: 8px;
+  border-radius: 4px;
+  background: #f5f7fa;
+}
+
+.request-config-form__quick-label {
+  color: var(--lc-text-secondary);
+  font-size: 11px;
+}
+
+.request-config-form__field-select {
+  width: 180px;
+}
+
+.request-config-form__assign {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--lc-border);
+}
+
+.form-assignment-editor__head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.form-assignment-editor__title {
+  color: #262626;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.form-assignment-editor__hint {
+  color: var(--lc-text-secondary);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.form-assignment-editor__row {
+  grid-template-columns: 1fr 1fr auto;
 }
 
 .action-card__detail {

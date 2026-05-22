@@ -3,14 +3,18 @@ import { computed, ref, watch } from 'vue';
 import { Delete, Document, Plus } from '@element-plus/icons-vue';
 import { getMaterialByType } from '@designer-materials/index';
 import type { EventActionType } from '@designer-core/schema';
-import { actionTypeList, getActionMeta } from '../constants/eventActions';
+import { actionTypeList, getActionMeta, supportsVisualActionConfig } from '../constants/eventActions';
 import { useDesignerStore } from '../store/designer';
 import { openEventGuideDoc } from '../utils/openEventGuideDoc';
+import ConditionBranchEditor from './ConditionBranchEditor.vue';
+import NestedActionConfigForm from './NestedActionConfigForm.vue';
 
 const designer = useDesignerStore();
 const bottomTab = ref('events');
 const selectedEvent = ref('change');
 const selectedActionId = ref('');
+const configDraft = ref('');
+const configParseError = ref('');
 
 const materialEvents = computed(() => {
   if (!designer.selectedNode) {
@@ -35,23 +39,83 @@ const selectedActionMeta = computed(() => {
   return getActionMeta(type);
 });
 
-const configJson = computed({
-  get() {
-    return JSON.stringify(selectedAction.value?.config ?? {}, null, 2);
-  },
-  set(value: string) {
-    if (!selectedAction.value) {
-      return;
-    }
+const isConditionAction = computed(() => selectedActionMeta.value?.type === 'condition');
 
-    try {
-      const parsed = JSON.parse(value) as Record<string, unknown>;
-      designer.updateEventConfig(selectedEvent.value, selectedAction.value.id!, parsed);
-    } catch {
-      // 非法 JSON 时不提交
-    }
+const hasVisualConfig = computed(() =>
+  supportsVisualActionConfig(selectedActionMeta.value?.type)
+);
+
+const showJsonEditorPrimary = computed(
+  () => selectedAction.value && !isConditionAction.value && !hasVisualConfig.value
+);
+
+const advancedJsonCollapse = ref<string[]>([]);
+
+function onConditionConfigUpdate(config: Record<string, unknown>) {
+  if (!selectedAction.value?.id) {
+    return;
   }
-});
+
+  designer.updateEventConfig(selectedEvent.value, selectedAction.value.id, config);
+  configDraft.value = formatConfigJson(config);
+  configParseError.value = '';
+}
+
+function formatConfigJson(config: Record<string, unknown> | undefined) {
+  return JSON.stringify(config ?? {}, null, 2);
+}
+
+function syncConfigDraft() {
+  configDraft.value = formatConfigJson(selectedAction.value?.config as Record<string, unknown>);
+  configParseError.value = '';
+}
+
+function trySaveConfigDraft() {
+  if (!selectedAction.value?.id) {
+    return false;
+  }
+
+  try {
+    const parsed = JSON.parse(configDraft.value) as Record<string, unknown>;
+    designer.updateEventConfig(selectedEvent.value, selectedAction.value.id, parsed);
+    configParseError.value = '';
+    return true;
+  } catch {
+    configParseError.value = 'JSON 格式不正确，已保留编辑内容，修正后失焦或点击「应用 JSON」';
+    return false;
+  }
+}
+
+function patchActionConfig(patch: Record<string, unknown>) {
+  if (!selectedAction.value?.id) {
+    return;
+  }
+
+  const next = {
+    ...(selectedAction.value.config ?? {}),
+    ...patch
+  };
+
+  designer.updateEventConfig(selectedEvent.value, selectedAction.value.id, next);
+  configDraft.value = formatConfigJson(next);
+  configParseError.value = '';
+}
+
+let saveConfigTimer: ReturnType<typeof setTimeout> | undefined;
+
+function scheduleSaveConfigDraft() {
+  if (saveConfigTimer) {
+    clearTimeout(saveConfigTimer);
+  }
+
+  saveConfigTimer = setTimeout(() => {
+    trySaveConfigDraft();
+  }, 400);
+}
+
+function onConfigDraftBlur() {
+  trySaveConfigDraft();
+}
 
 watch(
   () => designer.selectedId,
@@ -71,6 +135,10 @@ watch(currentActions, (actions) => {
   if (!actions.some((item) => item.id === selectedActionId.value)) {
     selectedActionId.value = actions[0]?.id ?? '';
   }
+});
+
+watch([selectedActionId, selectedEvent], () => {
+  syncConfigDraft();
 });
 
 function addAction(type: EventActionType) {
@@ -184,7 +252,57 @@ function removeAction(actionId: string) {
               动作配置 · {{ selectedActionMeta?.label }}
             </div>
             <p class="action-config__desc">{{ selectedActionMeta?.description }}</p>
-            <el-input v-model="configJson" type="textarea" :rows="8" class="action-config__editor" />
+
+            <ConditionBranchEditor
+              v-if="isConditionAction"
+              :model-value="(selectedAction.config ?? {}) as Record<string, unknown>"
+              @update:model-value="onConditionConfigUpdate"
+            />
+
+            <NestedActionConfigForm
+              v-else-if="hasVisualConfig"
+              :action="selectedAction"
+              @update="patchActionConfig"
+            />
+
+            <template v-else-if="showJsonEditorPrimary">
+              <div class="action-config__json-head">
+                <span class="action-config__json-label">动作配置（JSON）</span>
+                <el-button size="small" plain @click="trySaveConfigDraft">应用 JSON</el-button>
+              </div>
+              <el-input
+                v-model="configDraft"
+                type="textarea"
+                :rows="8"
+                class="action-config__editor"
+                @input="scheduleSaveConfigDraft"
+                @blur="onConfigDraftBlur"
+              />
+              <p v-if="configParseError" class="action-config__error">{{ configParseError }}</p>
+              <p v-else class="action-config__hint">
+                可直接编辑；合法 JSON 会在停顿后自动保存，或失焦 / 点击「应用 JSON」保存。
+              </p>
+            </template>
+
+            <el-collapse
+              v-if="isConditionAction || hasVisualConfig"
+              v-model="advancedJsonCollapse"
+              class="action-config__advanced"
+            >
+              <el-collapse-item title="高级：JSON 编辑" name="json">
+                <div class="action-config__json-head">
+                  <el-button size="small" plain @click="trySaveConfigDraft">应用 JSON</el-button>
+                </div>
+                <el-input
+                  v-model="configDraft"
+                  type="textarea"
+                  :rows="8"
+                  class="action-config__editor"
+                  @blur="onConfigDraftBlur"
+                />
+                <p v-if="configParseError" class="action-config__error">{{ configParseError }}</p>
+              </el-collapse-item>
+            </el-collapse>
           </div>
         </template>
       </div>

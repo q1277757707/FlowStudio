@@ -528,13 +528,13 @@ SchemaRenderer（入口，provide 运行时）
 
 ## 十七、已落地能力总览
 
-> 分版本明细见 **[更新日志](./changelog/README.md)**（`docs/changelog/v1.0.0.md`、`v1.1.0.md`）。
+> 分版本明细见 **[更新日志](./changelog/README.md)**（`v1.0.0.md`、`v1.1.0.md`、`v1.2.0.md`）。
 
 ### v1.0.0（MVP）
 
 - 空画布、物料拖拽、嵌套容器/表单、属性面板、Schema 复制、网格单元格投放。
 
-### v1.1.0（当前）
+### v1.1.0
 
 在 v1.0.0 基础上增加：
 
@@ -545,19 +545,34 @@ SchemaRenderer（入口，provide 运行时）
 | 沙箱 | `designer-sandbox`，预览 `customJS` / `message` 动作 |
 | 拖拽规则 | 表单组件仅能拖入表单；非法投放禁止光标 |
 | 预览体验 | 预览无边框、字段可交互、表单校验生效 |
-| 物料调整 | 移除穿梭框 |
+| 物料调整 | 移除穿梭框；容器显示名改为「栅格」 |
 
-### 仍未实现
+### v1.2.0（当前能力基线）
 
-- 变量表达式 UI 与完整作用域管理。
-- `request` / `setVariable` / `dialog` / `navigate` 完整动作链。
-- 撤销重做。
-- iframe 远程物料沙箱。
-- 属性面板事件与 customJS 可视化配置。
-- 发布与真机预览。
+在 v1.1.0 基础上增加，详见 [changelog/v1.2.0.md](./changelog/v1.2.0.md)：
+
+| 能力 | 说明 |
+| --- | --- |
+| 事件引擎 | `designer-event`：动作注册表、表达式、`runEventActions` |
+| 设计器事件面板 | 底部 Dock「事件配置」、常用动作可视化表单、条件分支编辑器 |
+| 动作能力 | `request`（axios）、`setVariable`、`setFormValue`、赋值更新下拉选项、`[]` 清空 |
+| 选项数据源 | 下拉/单选等支持静态或接口 `/api/options/list|tree`（dev Mock） |
+| 撤销重做 | 画布历史栈，Ctrl+Z / Ctrl+Y |
+| 文档预览 | `docs-preview.html`，`npm run dev` 可同时打开设计器与文档 |
+
+### 仍未实现（规划）
+
+| 类别 | 项 |
+| --- | --- |
+| 设计器 Dock | 「变量」「数据源」「页面设置」完整 UI；`pageEvents.pageLoad` 可视化配置 |
+| 事件增强 | 动作链拖拽排序、表达式可视化编辑器、parallel、**eventLogs 调试面板** |
+| 物料与发布 | iframe 远程物料沙箱；顶栏「发布」、真机预览；Schema 一键导入 |
+| 其它 | 属性面板内嵌事件 / customJS 可视化；`loop` / `emit` 专用表单；工作流 / AI 编排 |
+
+> v1.1.0  changelog 中「仍未实现」里所列的 request、撤销重做等，已在 v1.2.0 落地，以本节为准。
 
 ## 十八、总结
 
 本低代码平台核心采用 JSON Schema 驱动，基于 Renderer 渲染页面，通过变量系统、事件系统以及 **Proxy + with 沙箱** 实现页面内动态逻辑，远程扩展则预留 iframe 隔离能力。
 
-整体架构参考钉钉宜搭与企业级低代码平台设计方案，具备较高扩展性与后续商业化能力。v1.0.0 验证最小闭环，v1.1.0 补齐渲染拆分、校验、沙箱与拖拽体验；后续版本变更请维护 `docs/changelog/` 目录。
+整体架构参考钉钉宜搭与企业级低代码平台设计方案。v1.0.0 验证最小闭环，v1.1.0 补齐渲染与校验，v1.2.0 补齐事件编排与 Mock 联调；后续版本变更请维护 `docs/changelog/` 目录。

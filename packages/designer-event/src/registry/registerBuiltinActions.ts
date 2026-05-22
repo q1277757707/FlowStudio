@@ -8,6 +8,7 @@ import { MessageAction } from '../actions/message';
 import { NavigateAction } from '../actions/navigate';
 import { ReloadAction } from '../actions/reload';
 import { RequestAction } from '../actions/request';
+import { SetFormValueAction } from '../actions/setFormValue';
 import { SetVariableAction } from '../actions/setVariable';
 import { SetVisibleAction } from '../actions/setVisible';
 import type { ActionRegistry } from './ActionRegistry';
@@ -25,4 +26,5 @@ export function registerBuiltinActions(registry: ActionRegistry): void {
   registry.register('delay', new DelayAction());
   registry.register('customJS', new CustomJSAction());
   registry.register('setVisible', new SetVisibleAction());
+  registry.register('setFormValue', new SetFormValueAction());
 }

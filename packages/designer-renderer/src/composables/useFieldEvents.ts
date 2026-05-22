@@ -1,17 +1,15 @@
 import type { LowCodeNode } from '@designer-core/schema';
+import { ElMessage } from 'element-plus';
 import { runEventActions } from '@designer-event/index';
+import type { ActionLog } from '@designer-event/types';
 import { useRendererRuntime } from './useRendererRuntime';
 import type { RendererMode } from '../types';
 
-export function useFieldEvents(node: LowCodeNode, mode: RendererMode) {
+export function useFieldEvents(node: LowCodeNode, _mode: RendererMode) {
   const runtime = useRendererRuntime();
-  const isPreview = mode === 'preview';
+  const isPreview = _mode === 'preview';
 
   async function dispatch(eventName: string, payload?: Record<string, unknown>) {
-    if (!isPreview) {
-      return;
-    }
-
     const actions = node.events?.[eventName];
 
     if (!actions?.length) {
@@ -25,7 +23,13 @@ export function useFieldEvents(node: LowCodeNode, mode: RendererMode) {
       componentId: node.id,
       payload,
       continueOnError: true,
-      onLog: (log) => runtime.pushEventLog(log)
+      onLog: (log: ActionLog) => {
+        runtime.pushEventLog(log);
+
+        if (log.status === 'error' && log.message) {
+          ElMessage.error(log.message);
+        }
+      }
     });
   }
 

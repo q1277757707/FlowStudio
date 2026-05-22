@@ -320,9 +320,22 @@ globalActionRegistry.register('myAction', new MyAction());
 
 ## 十二、后续规划
 
+### 已实现（相对初版规划）
+
+- [x] 内置 `request` / `setVariable` / `message` / `dialog` / `navigate` 等动作
+- [x] 设计器底部事件面板与常用动作**可视化 config**（非纯 JSON）
+- [x] 条件分支可视化（`ConditionBranchEditor`）
+- [x] `setFormValue`、请求成功后 `assignments`、动态更新下拉选项
+- [x] 预览 `pageEvents.pageLoad` 运行时执行
+- [x] `eventLogs` 运行时收集（最近 100 条）
+
+### 待实现
+
 - [ ] 动作链拖拽排序
 - [ ] 可视化表达式编辑器
 - [ ] 并行执行（parallel）
-- [ ] 事件调试面板（展示 eventLogs）
-- [ ] 页面级事件 UI（pageLoad 配置）
+- [ ] **eventLogs 可视化调试面板**（设计器内查看）
+- [ ] **页面级事件 UI**（`pageLoad` 等配置入口）
+- [ ] Dock「变量 / 数据源 / 页面设置」完整能力
+- [ ] Schema 一键导入、`loop` / `emit` / `customJS` 专用表单
 - [ ] 工作流 / AI 编排对接
