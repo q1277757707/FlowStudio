@@ -1,0 +1,33 @@
+{
+  "name": "flow-studio",
+  "version": "1.1.0",
+  "description": "一个用于构建企业工作流、事件编排与动态应用的可视化低代码平台。",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "docs": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.3.2",
+    "axios": "^1.16.1",
+    "element-plus": "^2.14.0",
+    "lodash-es": "^4.18.1",
+    "marked": "^18.0.4",
+    "pinia": "^3.0.4",
+    "vue": "^3.5.34",
+    "vuedraggable": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/lodash-es": "^4.17.12",
+    "@vitejs/plugin-vue": "^6.0.7",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.13",
+    "vue-tsc": "^3.3.1"
+  }
+}

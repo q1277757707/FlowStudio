@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "jsx": "preserve",
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@designer-core/*": ["./packages/designer-core/src/*"],
+      "@designer-materials/*": ["./packages/designer-materials/src/*"],
+      "@designer-renderer/*": ["./packages/designer-renderer/src/*"],
+      "@designer-sandbox/*": ["./packages/designer-sandbox/src/*"],
+      "@designer-event/*": ["./packages/designer-event/src/*"],
+      "@app-designer/*": ["./packages/app-designer/src/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.vue", "packages/**/*.ts", "packages/**/*.vue"],
+  "references": []
+}
