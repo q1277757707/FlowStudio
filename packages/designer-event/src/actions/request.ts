@@ -1,11 +1,14 @@
 import { resolveConfig } from '../expression/ExpressionResolver';
+import { applyFormAssignments } from '../utils/applyFormAssignments';
 import { httpRequest } from '../utils/httpRequest';
 import { BaseAction, readString } from './BaseAction';
 import type { RuntimeContext } from '../types';
 
 export class RequestAction extends BaseAction {
   async execute(config: Record<string, unknown>, ctx: RuntimeContext) {
-    const resolved = resolveConfig(config, ctx);
+    // assignments 需在请求成功后再解析（含 variables.lastResponse），不可参与 resolveConfig
+    const { assignments, ...requestOnly } = config;
+    const resolved = resolveConfig(requestOnly, ctx);
     const url = readString(resolved, 'url');
     const method = readString(resolved, 'method', 'GET').toUpperCase();
     const params = (resolved.params ?? {}) as Record<string, unknown>;
@@ -20,6 +23,8 @@ export class RequestAction extends BaseAction {
 
     ctx.variables.lastResponse = data;
 
-    return this.success(data);
+    const assigned = await applyFormAssignments(assignments, ctx);
+
+    return this.success({ response: data, assigned });
   }
 }

@@ -33,7 +33,8 @@ export type EventActionType =
   | 'loop'
   | 'delay'
   | 'customJS'
-  | 'setVisible';
+  | 'setVisible'
+  | 'setFormValue';
 
 export interface EventAction {
   id?: string;

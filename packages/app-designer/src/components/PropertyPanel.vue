@@ -9,6 +9,7 @@ import {
 } from '@designer-core/validation';
 import {
   getMaterialByType,
+  getOptionApiDefaultProps,
   isOptionApiProp,
   isOptionSourceComponent,
   isOptionStaticProp,
@@ -89,6 +90,22 @@ function propValue(field: string) {
 
 function updateProp(field: string, value: unknown) {
   designer.updateSelectedProp(field, value);
+
+  if (field === 'optionsSource' && value === 'api' && designer.selectedNode) {
+    const nodeType = designer.selectedNode.type;
+
+    if (isOptionSourceComponent(nodeType)) {
+      const defaults = getOptionApiDefaultProps(nodeType);
+
+      for (const [key, defaultValue] of Object.entries(defaults)) {
+        const current = designer.selectedNode.props[key];
+
+        if (current === undefined || current === '') {
+          designer.updateSelectedProp(key, defaultValue);
+        }
+      }
+    }
+  }
 }
 
 function updateValidateType(value: string) {

@@ -36,6 +36,8 @@ export interface RuntimeContext {
   runActions?: (actions: EventAction[], ctx: RuntimeContext) => Promise<void>;
   /** 预览态控制组件显隐（设计态画布始终显示） */
   setComponentVisible?: (componentId: string, visible: boolean) => void;
+  /** 预览态给表单组件赋值（form[组件ID]） */
+  setFormFieldValue?: (componentId: string, value: unknown) => void;
 }
 
 export interface RequestOptions {

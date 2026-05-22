@@ -38,4 +38,4 @@ npm run docs
 | [examples/event-demo-schema.json](./examples/event-demo-schema.json) | 使用者 / 开发 | 可复制的完整页面 Schema |
 | [event-system.md](./event-system.md) | 开发 | 事件引擎架构与扩展 |
 | [lowcode-design.md](./lowcode-design.md) | 产品 / 开发 | 平台整体设计 |
-| [changelog/](./changelog/) | 所有人 | 版本更新记录 |
+| [changelog/](./changelog/) | 所有人 | 版本更新记录（含 [v1.2.0 事件系统](./changelog/v1.2.0.md)） |

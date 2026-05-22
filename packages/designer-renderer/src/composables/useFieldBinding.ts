@@ -14,12 +14,7 @@ export function useFieldBinding(node: LowCodeNode, mode: RendererMode) {
   }
 
   function onUpdate(value: unknown) {
-    if (isPreview) {
-      void fieldEvents.onChange(value);
-      return;
-    }
-
-    runtime.setFieldValue(node, value);
+    void fieldEvents.onChange(value);
   }
 
   return {

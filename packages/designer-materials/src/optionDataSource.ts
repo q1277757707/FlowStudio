@@ -32,6 +32,25 @@ export function isOptionStaticProp(field: string): boolean {
   return (OPTION_STATIC_PROP_FIELDS as readonly string[]).includes(field);
 }
 
+export function isTreeOptionComponent(type: string): boolean {
+  return type === 'Cascader' || type === 'TreeSelect';
+}
+
+/** 接口数据源默认配置（切换为 api 或请求时兜底） */
+export function getOptionApiDefaultProps(type: string): Record<string, unknown> {
+  const tree = isTreeOptionComponent(type);
+
+  return {
+    requestUrl: tree ? '/api/options/tree' : '/api/options/list',
+    requestMethod: 'GET',
+    requestParams: '{}',
+    dataPath: tree ? 'data.tree' : 'data.list',
+    labelField: 'label',
+    valueField: 'value',
+    ...(tree ? { childrenField: 'children' } : {})
+  };
+}
+
 const requestMethodOptions = [
   { label: 'GET', value: 'GET' },
   { label: 'POST', value: 'POST' }

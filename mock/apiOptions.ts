@@ -18,9 +18,9 @@ function sendJson(res: ServerResponse, status: number, body: MockApiResponse) {
 }
 
 const flatOptions = [
-  { label: '选项一', value: 'option1' },
-  { label: '选项二', value: 'option2' },
-  { label: '选项三', value: 'option3' }
+  { label: '选项一1', value: 'option1' },
+  { label: '选项二2', value: 'option2' },
+  { label: '选项三3', value: 'option3' }
 ];
 
 const treeOptions = [

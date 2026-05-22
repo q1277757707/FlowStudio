@@ -1,4 +1,5 @@
 import type { LowCodeNode } from '@designer-core/schema';
+import { getOptionApiDefaultProps } from '@designer-materials/optionDataSource';
 import type { RuntimeContext } from '@designer-event/types';
 import type { OptionItem } from '../types';
 import { resolveDataPath } from './resolveDataPath';
@@ -55,17 +56,14 @@ export async function fetchOptionsFromApi(
   node: LowCodeNode,
   ctx: RuntimeContext
 ): Promise<OptionItem[]> {
-  const url = readPropString(node, 'requestUrl', '');
+  const apiDefaults = getOptionApiDefaultProps(node.type);
+  const url = readPropString(node, 'requestUrl', String(apiDefaults.requestUrl ?? ''));
   const method = readPropString(node, 'requestMethod', 'GET').toUpperCase();
   const params = parseRequestParams(node.props.requestParams);
-  const dataPath = readPropString(node, 'dataPath', 'data.list');
+  const dataPath = readPropString(node, 'dataPath', String(apiDefaults.dataPath ?? 'data.list'));
   const labelField = readPropString(node, 'labelField', 'label');
   const valueField = readPropString(node, 'valueField', 'value');
   const childrenField = readPropString(node, 'childrenField', 'children');
-
-  if (!url) {
-    return [];
-  }
 
   const requester = ctx.api?.request;
 
