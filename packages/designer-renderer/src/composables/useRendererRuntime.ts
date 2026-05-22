@@ -1,7 +1,7 @@
 import { inject, provide, reactive, ref, type InjectionKey, type Ref } from 'vue';
 import { ElMessage, ElMessageBox, type ButtonProps } from 'element-plus';
 import { createGridCells, findNodeById, type LowCodeGridCell, type LowCodeNode } from '@designer-core/schema';
-import { runEventActions } from '@designer-event/index';
+import { httpRequest, runEventActions } from '@designer-event/index';
 import type { RuntimeContext } from '@designer-event/types';
 import type { ActionLog } from '@designer-event/types';
 import type { DraggableChangeEvent, OptionItem, RendererMode } from '../types';
@@ -249,37 +249,7 @@ export function provideRendererRuntime(options: RendererRuntimeOptions): Rendere
       },
       setComponentVisible,
       api: {
-        request: async ({ url, method, params }) => {
-          const init: RequestInit = {
-            method,
-            headers: { 'Content-Type': 'application/json' }
-          };
-
-          if (method !== 'GET' && method !== 'HEAD') {
-            init.body = JSON.stringify(params ?? {});
-          }
-
-          const target =
-            method === 'GET'
-              ? `${url}?${new URLSearchParams(
-                  Object.entries(params ?? {}).map(([k, v]) => [k, String(v)])
-                )}`
-              : url;
-
-          const response = await fetch(target, init);
-
-          if (!response.ok) {
-            throw new Error(`请求失败: ${response.status}`);
-          }
-
-          const contentType = response.headers.get('content-type') ?? '';
-
-          if (contentType.includes('application/json')) {
-            return response.json();
-          }
-
-          return response.text();
-        }
+        request: httpRequest
       }
     };
   }

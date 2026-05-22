@@ -7,6 +7,7 @@ export * from './runner/ActionRunner';
 export * from './runner/EventDispatcher';
 export * from './log/EventLogger';
 export { normalizeAction } from './utils/normalizeAction';
+export { httpRequest } from './utils/httpRequest';
 
 import { globalEventDispatcher } from './runner/EventDispatcher';
 import type { EventAction } from '@designer-core/schema';
