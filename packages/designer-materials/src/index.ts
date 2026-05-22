@@ -142,7 +142,7 @@ const defaultTreeOptions = [
 export const materialList: MaterialMeta[] = [
   {
     type: 'Container',
-    name: '容器',
+    name: '栅格',
     icon: 'Grid',
     category: '布局',
     canHaveChildren: true,
@@ -151,7 +151,7 @@ export const materialList: MaterialMeta[] = [
         field: 'title',
         label: '标题',
         type: 'StringSetter',
-        defaultValue: '容器'
+        defaultValue: '栅格'
       },
       {
         field: 'layout',

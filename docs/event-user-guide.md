@@ -86,7 +86,7 @@ npm run dev
 | Textarea | `input`、`change`、`focus`、`blur` |
 | Button | `click` |
 | Upload | `change`、`success`、`error`、`remove` |
-| Container / Form / Text | 暂无（列表为空） |
+| 栅格(Container) / Form / Text | 暂无（列表为空） |
 
 ---
 

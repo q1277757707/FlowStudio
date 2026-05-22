@@ -18,7 +18,7 @@ const { checkMove, dragGroup } = useDragMove('container');
 
 <template>
   <section class="render-container">
-    <div class="render-container__title">{{ runtime.readString(node, 'title', '容器') }}</div>
+    <div class="render-container__title">{{ runtime.readString(node, 'title', '栅格') }}</div>
 
     <div
       v-if="runtime.readString(node, 'layout', 'grid') === 'grid'"
@@ -54,7 +54,7 @@ const { checkMove, dragGroup } = useDragMove('container');
             <RendererList :nodes="[element]" :mode="mode" :selected-id="selectedId" />
           </template>
           <template #footer>
-            <div v-if="!cell.children.length" class="grid-cell__placeholder">可拖入表单/容器/按钮等，表单组件请放入表单</div>
+            <div v-if="!cell.children.length" class="grid-cell__placeholder">可拖入表单/栅格/按钮等，表单组件请放入表单</div>
           </template>
         </Draggable>
 
@@ -83,7 +83,7 @@ const { checkMove, dragGroup } = useDragMove('container');
           <RendererList :nodes="[element]" :mode="mode" :selected-id="selectedId" />
         </template>
         <template #footer>
-          <div v-if="!node.children?.length" class="nested-drop-zone__placeholder">可拖入表单/容器/按钮等，表单组件请放入表单</div>
+          <div v-if="!node.children?.length" class="nested-drop-zone__placeholder">可拖入表单/栅格/按钮等，表单组件请放入表单</div>
         </template>
       </Draggable>
 

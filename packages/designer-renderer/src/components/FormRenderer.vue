@@ -36,7 +36,7 @@ function onFormChildChange(event: DraggableChangeEvent<LowCodeNode>) {
         children.splice(index, 1);
       }
 
-      ElMessage.warning('表单内不可嵌套表单，可放置字段、容器、按钮或文本');
+      ElMessage.warning('表单内不可嵌套表单，可放置字段、栅格、按钮或文本');
       return;
     }
   }
@@ -67,7 +67,7 @@ function onFormChildChange(event: DraggableChangeEvent<LowCodeNode>) {
         <RendererList :nodes="[element]" :mode="mode" :selected-id="selectedId" />
       </template>
       <template #footer>
-        <div v-if="!node.children?.length" class="nested-drop-zone__placeholder">可拖入字段、容器、按钮或文本</div>
+        <div v-if="!node.children?.length" class="nested-drop-zone__placeholder">可拖入字段、栅格、按钮或文本</div>
       </template>
     </Draggable>
 
