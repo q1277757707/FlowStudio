@@ -26,6 +26,7 @@ packages/
 ├── designer-renderer
 ├── designer-materials
 ├── designer-event（已实现，见 docs/event-system.md）
+├── designer-workflow（已实现，见 docs/workflow-design.md）
 ├── designer-variable
 ├── designer-history
 ├── designer-sandbox
@@ -36,16 +37,17 @@ packages/
 
 | 模块 | 说明 |
 | --- | --- |
-| designer-core | 核心 Schema、节点操作、通用类型 |
+| designer-core | 核心 Schema、节点操作、通用类型；流程模板编译（`workflow.ts`） |
 | designer-renderer | Schema 渲染器 |
 | designer-materials | 物料协议与物料注册 |
 | designer-event | 事件动作链引擎（ActionRegistry / Runner / Dispatcher） |
+| designer-workflow | 流程设计画布（Workflow）、节点/条件抽屉、`useWorkflowStore` |
 | designer-variable | 变量与表达式系统 |
 | designer-history | 撤销重做 |
 | designer-sandbox | JS 沙箱（Proxy + with，已实现） |
 | designer-preview | 页面预览（合并在 renderer `mode=preview`） |
 | designer-server | 远程物料服务 |
-| app-designer | 可视化设计器应用 |
+| app-designer | 可视化设计器 Shell（表单设计 + 流程/基础信息步骤与宿主桥接） |
 
 ## 三、设计器页面结构
 
@@ -567,7 +569,8 @@ SchemaRenderer（入口，provide 运行时）
 | 设计器 Dock | 「变量」「数据源」「页面设置」完整 UI；`pageEvents.pageLoad` 可视化配置 |
 | 事件增强 | 动作链拖拽排序、表达式可视化编辑器、parallel、**eventLogs 调试面板** |
 | 物料与发布 | iframe 远程物料沙箱；顶栏「发布」、真机预览；Schema 一键导入 |
-| 其它 | 属性面板内嵌事件 / customJS 可视化；`loop` / `emit` 专用表单；工作流 / AI 编排 |
+| 其它 | 属性面板内嵌事件 / customJS 可视化；`loop` / `emit` 专用表单；AI 编排 |
+| 流程设计 | 已实现于 `designer-workflow`，见 [workflow-design.md](./workflow-design.md) |
 
 > v1.1.0  changelog 中「仍未实现」里所列的 request、撤销重做等，已在 v1.2.0 落地，以本节为准。
 

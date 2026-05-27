@@ -21,14 +21,14 @@ export const NODE_COLOR = {
 /** 条件网关至少保留的可编辑分支数（与新建时默认 2 条一致） */
 export const MIN_CONDITION_BRANCHES = 2;
 
-export type BeeflowNodeType = (typeof NODE)[keyof typeof NODE];
+export type WorkflowNodeType = (typeof NODE)[keyof typeof NODE];
 
-export function isBeeflowStepNodeType(
-  type: BeeflowNodeType
+export function isWorkflowStepNodeType(
+  type: WorkflowNodeType
 ): type is typeof NODE.APPROVE | typeof NODE.COPY | typeof NODE.TRANSACT {
   return type === NODE.APPROVE || type === NODE.COPY || type === NODE.TRANSACT;
 }
 
-export function isBeeflowLinearNodeType(type: BeeflowNodeType): boolean {
-  return type === NODE.START || isBeeflowStepNodeType(type);
+export function isWorkflowLinearNodeType(type: WorkflowNodeType): boolean {
+  return type === NODE.START || isWorkflowStepNodeType(type);
 }

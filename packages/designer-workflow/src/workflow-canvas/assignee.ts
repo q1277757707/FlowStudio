@@ -1,5 +1,5 @@
 import { NODE } from './constants';
-import type { BeeflowAssignee, BeeflowNode } from './types';
+import type { WorkflowAssignee, WorkflowNode } from './types';
 
 export const ASSIGNEE = {
   SELF: 0,
@@ -18,13 +18,13 @@ export function newRid() {
 
 export type AssigneeListMode = 'approve' | 'cc' | 'transact';
 
-export function getAssigneeType(item: BeeflowAssignee, mode: AssigneeListMode): number {
+export function getAssigneeType(item: WorkflowAssignee, mode: AssigneeListMode): number {
   if (mode === 'cc') return item.ccType ?? item.assigneeType ?? ASSIGNEE.SELF;
   if (mode === 'transact') return item.transactorType ?? item.assigneeType ?? ASSIGNEE.SELF;
   return item.assigneeType ?? ASSIGNEE.SELF;
 }
 
-export function setAssigneeType(item: BeeflowAssignee, mode: AssigneeListMode, type: number) {
+export function setAssigneeType(item: WorkflowAssignee, mode: AssigneeListMode, type: number) {
   if (mode === 'cc') {
     item.ccType = type;
     item.assigneeType = type;
@@ -38,7 +38,7 @@ export function setAssigneeType(item: BeeflowAssignee, mode: AssigneeListMode, t
   item.assigneeType = type;
 }
 
-export function onAssigneeTypeChanged(item: BeeflowAssignee, type: number) {
+export function onAssigneeTypeChanged(item: WorkflowAssignee, type: number) {
   if ([ASSIGNEE.SUPERIOR, ASSIGNEE.DEPARTMENT_LEADER, ASSIGNEE.MULTISTEP_LEADER, ASSIGNEE.MULTISTEP_DEPARTMENT_LEADER].includes(type as never)) {
     item.layerType = item.layerType ?? 0;
     item.layer = item.layer ?? 0;
@@ -71,7 +71,7 @@ export function layerOptionLabel(layer: number, layerType: number, kind: 'superi
   return layer === 0 ? '最高部门负责人' : `最高部门负责人减 ${layer} 级`;
 }
 
-export function formatBeeflowNodeAssigneeSummary(node: BeeflowNode): string {
+export function formatWorkflowNodeAssigneeSummary(node: WorkflowNode): string {
   if (node.type === NODE.APPROVE) {
     const list = node.assignees ?? [];
     if (!list.length) return '';
@@ -99,7 +99,7 @@ export const ASSIGNEE_LABELS: Record<number, string> = {
   [ASSIGNEE.INITIATOR_CHOICE]: '发起人自选'
 };
 
-function formatAssigneeItem(item: BeeflowAssignee, mode: AssigneeListMode): string {
+function formatAssigneeItem(item: WorkflowAssignee, mode: AssigneeListMode): string {
   const type = getAssigneeType(item, mode);
   const base = ASSIGNEE_LABELS[type] ?? '审批人';
   if (type === ASSIGNEE.ASSIGNEE && item.assignees?.length) {

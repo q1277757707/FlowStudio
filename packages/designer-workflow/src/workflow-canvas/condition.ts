@@ -1,5 +1,5 @@
 import type { WorkflowConditionGroupDraft, WorkflowConditionRuleDraft } from '@designer-core/workflow';
-import type { BeeflowConditionGroup, BeeflowConditionRule } from './types';
+import type { WorkflowConditionGroup, WorkflowConditionRule } from './types';
 
 export const CONDITION_OPERATORS: Array<{ value: number; label: string }> = [
   { value: 0, label: '等于' },
@@ -24,7 +24,7 @@ function newConditionId(prefix: string) {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 }
 
-export function createEmptyConditionRule(): BeeflowConditionRule {
+export function createEmptyConditionRule(): WorkflowConditionRule {
   return {
     id: newConditionId('rule'),
     varName: 'initiator',
@@ -33,7 +33,7 @@ export function createEmptyConditionRule(): BeeflowConditionRule {
   };
 }
 
-export function createEmptyConditionGroup(): BeeflowConditionGroup {
+export function createEmptyConditionGroup(): WorkflowConditionGroup {
   return {
     id: newConditionId('group'),
     conditions: [createEmptyConditionRule()]
@@ -41,13 +41,13 @@ export function createEmptyConditionGroup(): BeeflowConditionGroup {
 }
 
 export function normalizeConditionGroups(
-  groups?: BeeflowConditionGroup[] | WorkflowConditionGroupDraft[] | null
-): BeeflowConditionGroup[] {
+  groups?: WorkflowConditionGroup[] | WorkflowConditionGroupDraft[] | null
+): WorkflowConditionGroup[] {
   if (!groups?.length) return [createEmptyConditionGroup()];
   return groups.map((group) => ({
     id: group.id ?? newConditionId('group'),
     conditions: (group.conditions ?? []).map((rule) => {
-      const row = rule as BeeflowConditionRule;
+      const row = rule as WorkflowConditionRule;
       return {
         id: row.id ?? newConditionId('rule'),
         varName: row.varName || 'initiator',
@@ -59,7 +59,7 @@ export function normalizeConditionGroups(
 }
 
 export function formatConditionRuleLabel(
-  rule: BeeflowConditionRule,
+  rule: WorkflowConditionRule,
   fieldLabelMap: Record<string, string> = {}
 ): string {
   const field =
@@ -72,7 +72,7 @@ export function formatConditionRuleLabel(
 }
 
 export function formatConditionSummary(
-  groups?: BeeflowConditionGroup[] | null,
+  groups?: WorkflowConditionGroup[] | null,
   fieldLabelMap: Record<string, string> = {}
 ): string {
   const normalized = normalizeConditionGroups(groups);
@@ -87,18 +87,18 @@ export function formatConditionSummary(
   return groupTexts.join(' 或 ');
 }
 
-export function conditionGroupsToExpression(groups?: BeeflowConditionGroup[] | null): string {
+export function conditionGroupsToExpression(groups?: WorkflowConditionGroup[] | null): string {
   return formatConditionSummary(groups);
 }
 
-export function draftGroupsToBeeflow(
+export function draftGroupsToCondition(
   groups?: WorkflowConditionGroupDraft[] | null
-): BeeflowConditionGroup[] {
-  return normalizeConditionGroups(groups as BeeflowConditionGroup[] | undefined);
+): WorkflowConditionGroup[] {
+  return normalizeConditionGroups(groups as WorkflowConditionGroup[] | undefined);
 }
 
-export function beeflowGroupsToDraft(
-  groups?: BeeflowConditionGroup[] | null
+export function conditionGroupsToDraft(
+  groups?: WorkflowConditionGroup[] | null
 ): WorkflowConditionGroupDraft[] {
   return normalizeConditionGroups(groups) as WorkflowConditionGroupDraft[];
 }

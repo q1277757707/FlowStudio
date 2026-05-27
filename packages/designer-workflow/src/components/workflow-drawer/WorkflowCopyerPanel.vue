@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { NODE } from '../../flow-beeflow/constants';
-import type { BeeflowNode } from '../../flow-beeflow/types';
+import { NODE } from '../../workflow-canvas/constants';
+import type { WorkflowNode } from '../../workflow-canvas/types';
 import WorkflowAssigneeList from './WorkflowAssigneeList.vue';
 
-const model = defineModel<BeeflowNode>({ required: true });
+const model = defineModel<WorkflowNode>({ required: true });
 
 const ccs = computed({
   get: () => model.value.ccs ?? [],

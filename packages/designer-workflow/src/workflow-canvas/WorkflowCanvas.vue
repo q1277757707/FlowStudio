@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from 'vue';
 import { Minus, Plus } from '@element-plus/icons-vue';
-import './flow-beeflow.css';
+import './workflow-canvas.css';
 import { useWorkflowStore } from '../store/workflow';
-import BeeflowNodeWrap from './BeeflowNodeWrap.vue';
+import WorkflowNodeWrap from './WorkflowNodeWrap.vue';
 import { nodeAccentVars } from './accent';
 import { NODE, NODE_COLOR } from './constants';
 
@@ -24,7 +24,7 @@ const transformStyle = computed(() => ({
   transform: `translate(${panX.value}px, ${panY.value}px) scale(${scale.value / 100})`
 }));
 
-function onNodeConfigUpdate(value: import('./types').BeeflowNode | null) {
+function onNodeConfigUpdate(value: import('./types').WorkflowNode | null) {
   if (value) workflow.setNodeConfig(value);
 }
 
@@ -60,7 +60,7 @@ onBeforeUnmount(() => { isPanning.value = false; });
 </script>
 
 <template>
-  <div class="workflow-canvas designer-center__canvas flow-beeflow-canvas" :class="{ 'is-panning': isPanning }" @click.stop>
+  <div class="workflow-canvas designer-center__canvas workflow-canvas-surface" :class="{ 'is-panning': isPanning }" @click.stop>
     <div class="flow-canvas-zoom" @click.stop>
       <button type="button" class="flow-canvas-zoom__btn" :disabled="scale <= MIN_SCALE" aria-label="缩小" @click="zoomOut">
         <el-icon><Minus /></el-icon>
@@ -75,7 +75,7 @@ onBeforeUnmount(() => { isPanning.value = false; });
       <div class="flow-canvas-transform" :style="transformStyle">
         <div class="flow-desgin-main">
           <div class="box-scale">
-            <BeeflowNodeWrap :node-config="workflow.nodeConfig" :flow-permission="workflow.flowPermission" @update:node-config="onNodeConfigUpdate" />
+            <WorkflowNodeWrap :node-config="workflow.nodeConfig" :flow-permission="workflow.flowPermission" @update:node-config="onNodeConfigUpdate" />
             <div class="node-wrap">
               <div
                 class="node-wrap-box end-node"

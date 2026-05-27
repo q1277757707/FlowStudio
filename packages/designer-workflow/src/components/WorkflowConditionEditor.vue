@@ -8,9 +8,9 @@ import {
   createEmptyConditionGroup,
   createEmptyConditionRule,
   normalizeConditionGroups
-} from '../flow-beeflow/condition';
-import type { BeeflowConditionGroup } from '../flow-beeflow/types';
-import { useDesignerStore } from '../store/designer';
+} from '../workflow-canvas/condition';
+import type { WorkflowConditionGroup } from '../workflow-canvas/types';
+import { workflowFormFields } from '../store/formFieldsBridge';
 
 const props = defineProps<{
   groups: WorkflowConditionGroupDraft[];
@@ -22,34 +22,21 @@ const emit = defineEmits<{
   'update:branchLabel': [value: string];
 }>();
 
-const designer = useDesignerStore();
 const editingTitle = ref(false);
 const titleDraft = ref('');
 
 const normalizedGroups = computed(() =>
-  normalizeConditionGroups(props.groups as BeeflowConditionGroup[])
+  normalizeConditionGroups(props.groups as WorkflowConditionGroup[])
 );
 
-const fieldOptions = computed(() => {
-  const formFields: Array<{ value: string; label: string }> = [];
-  const walk = (nodes: typeof designer.schema.components) => {
-    for (const node of nodes) {
-      const rawLabel = node.props?.label;
-      const label = typeof rawLabel === 'string' && rawLabel.trim() ? rawLabel : node.type;
-      if (node.id) formFields.push({ value: node.id, label });
-      if (node.children?.length) walk(node.children);
-    }
-  };
-  walk(designer.schema.components);
-  return [...CONDITION_FIELD_PRESETS, ...formFields];
-});
+const fieldOptions = computed(() => [...CONDITION_FIELD_PRESETS, ...workflowFormFields.value]);
 
-function emitGroups(groups: BeeflowConditionGroup[]) {
+function emitGroups(groups: WorkflowConditionGroup[]) {
   emit('update:groups', groups as WorkflowConditionGroupDraft[]);
 }
 
-function patchGroups(mutator: (groups: BeeflowConditionGroup[]) => void) {
-  const next = normalizeConditionGroups(props.groups as BeeflowConditionGroup[]).map((group) => ({
+function patchGroups(mutator: (groups: WorkflowConditionGroup[]) => void) {
+  const next = normalizeConditionGroups(props.groups as WorkflowConditionGroup[]).map((group) => ({
     ...group,
     conditions: group.conditions.map((rule) => ({ ...rule }))
   }));

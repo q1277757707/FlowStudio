@@ -10,11 +10,11 @@ import {
   newRid,
   onAssigneeTypeChanged,
   setAssigneeType
-} from '../../flow-beeflow/assignee';
-import type { BeeflowAssignee } from '../../flow-beeflow/types';
+} from '../../workflow-canvas/assignee';
+import type { WorkflowAssignee } from '../../workflow-canvas/types';
 
 const props = defineProps<{
-  modelValue: BeeflowAssignee[];
+  modelValue: WorkflowAssignee[];
   mode: AssigneeListMode;
   personLabel: string;
   typeOptions: number[];
@@ -22,7 +22,7 @@ const props = defineProps<{
   disableMultiOnlyTypes?: boolean;
 }>();
 
-const emit = defineEmits<{ 'update:modelValue': [value: BeeflowAssignee[]] }>();
+const emit = defineEmits<{ 'update:modelValue': [value: WorkflowAssignee[]] }>();
 
 const list = computed({
   get: () => props.modelValue,
@@ -32,7 +32,7 @@ const list = computed({
 const layerOptions = Array.from({ length: 20 }, (_, i) => i);
 
 function addPerson() {
-  const item: BeeflowAssignee = { rid: newRid() };
+  const item: WorkflowAssignee = { rid: newRid() };
   setAssigneeType(item, props.mode, ASSIGNEE.SELF);
   onAssigneeTypeChanged(item, ASSIGNEE.SELF);
   list.value = [...list.value, item];
@@ -43,13 +43,13 @@ function removePerson(rid: string) {
   list.value = list.value.filter((item) => item.rid !== rid);
 }
 
-function changeType(item: BeeflowAssignee, type: number) {
+function changeType(item: WorkflowAssignee, type: number) {
   setAssigneeType(item, props.mode, type);
   onAssigneeTypeChanged(item, type);
   list.value = [...list.value];
 }
 
-function switchLayerType(item: BeeflowAssignee) {
+function switchLayerType(item: WorkflowAssignee) {
   item.layerType = item.layerType === 1 ? 0 : 1;
   list.value = [...list.value];
 }

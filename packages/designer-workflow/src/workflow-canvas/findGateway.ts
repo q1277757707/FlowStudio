@@ -1,13 +1,13 @@
 import { NODE } from './constants';
-import type { BeeflowConditionNode, BeeflowNode } from './types';
+import type { WorkflowConditionNode, WorkflowNode } from './types';
 
-export function findBeeflowGateway(
-  root: BeeflowNode,
+export function findWorkflowGateway(
+  root: WorkflowNode,
   blockKey: string
-): BeeflowNode | undefined {
-  let found: BeeflowNode | undefined;
+): WorkflowNode | undefined {
+  let found: WorkflowNode | undefined;
 
-  function walk(node: BeeflowNode | null | undefined) {
+  function walk(node: WorkflowNode | null | undefined) {
     if (!node || found) return;
     if (node.type === NODE.EXCLUSIVE_GATEWANY && node.key === blockKey) {
       found = node;
@@ -21,11 +21,11 @@ export function findBeeflowGateway(
   return found;
 }
 
-export function findBeeflowConditionBranch(
-  root: BeeflowNode,
+export function findWorkflowConditionBranch(
+  root: WorkflowNode,
   blockKey: string,
   branchKey: string
-): BeeflowConditionNode | undefined {
-  const gateway = findBeeflowGateway(root, blockKey);
+): WorkflowConditionNode | undefined {
+  const gateway = findWorkflowGateway(root, blockKey);
   return gateway?.conditionNodes?.find((branch) => branch.key === branchKey);
 }

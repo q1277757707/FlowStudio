@@ -28,12 +28,12 @@ import {
   flowItemsToNodeConfig,
   nodeConfigToFlowItems,
   nodeConfigToStartSettings
-} from '../flow-beeflow/adapter';
-import { draftGroupsToBeeflow, formatConditionSummary } from '../flow-beeflow/condition';
-import { findBeeflowNodeByKey, patchBeeflowNodeByKey } from '../flow-beeflow/findNode';
-import type { BeeflowFlowPermission, BeeflowNode } from '../flow-beeflow/types';
+} from '../workflow-canvas/adapter';
+import { draftGroupsToCondition, formatConditionSummary } from '../workflow-canvas/condition';
+import { findWorkflowNodeByKey, patchWorkflowNodeByKey } from '../workflow-canvas/findNode';
+import type { WorkflowFlowPermission, WorkflowNode } from '../workflow-canvas/types';
 import type { WorkflowConditionGroupDraft } from '@designer-core/workflow';
-import { useDesignerStore } from './designer';
+import { workflowPageMeta } from './pageMetaBridge';
 
 const STORAGE_KEY = 'lc-workflow-template-draft-v5';
 const BASIC_INFO_KEY = 'lc-workflow-basic-info-v1';
@@ -143,48 +143,47 @@ export type WorkflowSelection =
   | { target: 'branchStep'; blockKey: string; branchKey: string; stepKey: string };
 
 export const useWorkflowStore = defineStore('workflow', () => {
-  const designer = useDesignerStore();
 
   const templateMeta = ref({ code: 'wf_default', name: '默认审批流', version: 1, status: 'draft' as WorkflowTemplateStatus });
   const basicInfo = ref<WorkflowBasicInfo>(readStoredBasicInfo() ?? createDefaultBasicInfo());
   const flowGroups = ref<WorkflowFlowGroup[]>([...DEFAULT_FLOW_GROUPS]);
   const startSettings = ref<WorkflowStartSettings>({ initiatorMode: 'all' });
   const flowItems = ref<WorkflowFlowItem[]>([]);
-  const nodeConfig = ref<BeeflowNode>(createInitialNodeConfig());
-  const flowPermission = ref<BeeflowFlowPermission>(createInitialFlowPermission());
+  const nodeConfig = ref<WorkflowNode>(createInitialNodeConfig());
+  const flowPermission = ref<WorkflowFlowPermission>(createInitialFlowPermission());
   const selection = ref<WorkflowSelection>({ target: 'end' });
   const lastValidation = ref<WorkflowValidationResult | null>(null);
 
-  let syncingBeeflow = false;
+  let syncingNodeConfig = false;
 
-  function syncFromBeeflow() {
-    if (syncingBeeflow) return;
-    syncingBeeflow = true;
+  function syncFromNodeConfig() {
+    if (syncingNodeConfig) return;
+    syncingNodeConfig = true;
     ensureNodeKeys(nodeConfig.value);
     flowItems.value = nodeConfigToFlowItems(nodeConfig.value);
     Object.assign(startSettings.value, nodeConfigToStartSettings(nodeConfig.value, flowPermission.value));
-    syncingBeeflow = false;
+    syncingNodeConfig = false;
   }
 
-  function syncToBeeflow() {
-    if (syncingBeeflow) return;
-    syncingBeeflow = true;
+  function syncToNodeConfig() {
+    if (syncingNodeConfig) return;
+    syncingNodeConfig = true;
     const converted = flowItemsToNodeConfig(flowItems.value, startSettings.value);
     nodeConfig.value = converted.nodeConfig;
     flowPermission.value = converted.flowPermission;
     ensureNodeKeys(nodeConfig.value);
-    syncingBeeflow = false;
+    syncingNodeConfig = false;
   }
 
-  function setNodeConfig(config: BeeflowNode) {
+  function setNodeConfig(config: WorkflowNode) {
     nodeConfig.value = config;
-    syncFromBeeflow();
+    syncFromNodeConfig();
   }
 
   function syncMetaFromPage() {
-    templateMeta.value.code = designer.schema.pageId || templateMeta.value.code;
+    templateMeta.value.code = workflowPageMeta.value.pageId || templateMeta.value.code;
     if (!basicInfo.value.name.trim()) {
-      templateMeta.value.name = designer.schema.pageName || templateMeta.value.name;
+      templateMeta.value.name = workflowPageMeta.value.pageName || templateMeta.value.name;
     }
   }
 
@@ -211,7 +210,7 @@ export const useWorkflowStore = defineStore('workflow', () => {
       return item;
     });
     selection.value = { target: 'end' };
-    syncToBeeflow();
+    syncToNodeConfig();
     syncMetaFromPage();
   }
 
@@ -233,7 +232,7 @@ export const useWorkflowStore = defineStore('workflow', () => {
 
   /** 打开 JSON 等导出前：以画布 nodeConfig 为准刷新 flowItems，保证与最新编辑一致 */
   function refreshFlowSnapshot() {
-    syncFromBeeflow();
+    syncFromNodeConfig();
   }
 
   const selectedStep = computed((): WorkflowStepDraft | undefined => {
@@ -262,13 +261,13 @@ export const useWorkflowStore = defineStore('workflow', () => {
     persistBasicInfo();
   }, { deep: true });
 
-  watch(flowItems, () => { syncToBeeflow(); }, { deep: true });
-  watch(startSettings, () => { syncToBeeflow(); }, { deep: true });
-  watch(() => designer.schema.pageId, () => syncMetaFromPage());
+  watch(flowItems, () => { syncToNodeConfig(); }, { deep: true });
+  watch(startSettings, () => { syncToNodeConfig(); }, { deep: true });
+  watch(() => workflowPageMeta.value.pageId, () => syncMetaFromPage());
 
   function setStartSettings(patch: Partial<WorkflowStartSettings>) {
     Object.assign(startSettings.value, patch);
-    syncToBeeflow();
+    syncToNodeConfig();
   }
 
   function findStepByKey(stepKey: string) { return findStepInTree(flowItems.value, stepKey); }
@@ -293,10 +292,10 @@ export const useWorkflowStore = defineStore('workflow', () => {
     if (step) Object.assign(step, patch);
   }
 
-  function updateBeeflowNode(stepKey: string, node: BeeflowNode) {
-    if (!patchBeeflowNodeByKey(nodeConfig.value, stepKey, node)) return;
+  function updateWorkflowNode(stepKey: string, node: WorkflowNode) {
+    if (!patchWorkflowNodeByKey(nodeConfig.value, stepKey, node)) return;
     ensureNodeKeys(nodeConfig.value);
-    syncFromBeeflow();
+    syncFromNodeConfig();
   }
 
   function updateBranchCondition(blockKey: string, branchKey: string, condition: string) {
@@ -306,7 +305,7 @@ export const useWorkflowStore = defineStore('workflow', () => {
     branch.conditionGroups = condition.trim()
       ? [{ conditions: [{ varName: 'expr', operator: 0, val: condition }] }]
       : [];
-    syncToBeeflow();
+    syncToNodeConfig();
   }
 
   function updateBranchConditionGroups(
@@ -316,17 +315,17 @@ export const useWorkflowStore = defineStore('workflow', () => {
   ) {
     const branch = findBranchInTree(flowItems.value, blockKey, branchKey);
     if (!branch) return;
-    const normalized = draftGroupsToBeeflow(groups);
+    const normalized = draftGroupsToCondition(groups);
     branch.conditionGroups = groups;
     branch.condition = formatConditionSummary(normalized);
-    syncToBeeflow();
+    syncToNodeConfig();
   }
 
   function updateBranchLabel(blockKey: string, branchKey: string, label: string) {
     const branch = findBranchInTree(flowItems.value, blockKey, branchKey);
     if (!branch) return;
     branch.label = label;
-    syncToBeeflow();
+    syncToNodeConfig();
   }
 
   function addBranchToBlock(blockKey: string) {
@@ -381,12 +380,12 @@ export const useWorkflowStore = defineStore('workflow', () => {
   return {
     templateMeta, basicInfo, flowGroups, syncBasicInfoToMeta, removeAdministrator,
     startSettings, flowItems, flowSteps: flowItems,
-    nodeConfig, flowPermission, setNodeConfig, syncFromBeeflow, syncToBeeflow,
+    nodeConfig, flowPermission, setNodeConfig, syncFromNodeConfig, syncToNodeConfig,
     findStepByKey, findBranchByKeys, selection, selectedStep, selectedBranch,
     compiledTemplate, templateJson, lastValidation,
     setStartSettings, insertFlowItemAt, insertStepAt: insertFlowItemAt,
     insertFlowItemInBranch, insertBranchStepAt: insertFlowItemInBranch,
-    removeFlowItemAt, removeStep, updateStep, updateBeeflowNode, updateBranchCondition,
+    removeFlowItemAt, removeStep, updateStep, updateWorkflowNode, updateBranchCondition,
     updateBranchConditionGroups, updateBranchLabel, addBranchToBlock,
     selectStart, selectEnd, selectStep, selectBranchCondition, selectBranchStep, isSelectedStep,
     runValidation, resetTemplate, loadFromTemplate, refreshFlowSnapshot,

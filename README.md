@@ -7,6 +7,7 @@
 - Vue 3 + Element Plus + Pinia + Vite
 - JSON Schema 驱动页面与事件配置
 - `packages/designer-event` 事件动作链引擎
+- `packages/designer-workflow` 流程设计（`workflow-canvas` 画布与节点配置）
 
 ## 快速开始
 
@@ -21,3 +22,4 @@ npm run docs   # 仅打开文档预览
 - [docs/README.md](./docs/README.md) — 文档索引
 - [docs/event-user-guide.md](./docs/event-user-guide.md) — 事件配置使用指南
 - [docs/lowcode-design.md](./docs/lowcode-design.md) — 平台设计说明
+- [docs/workflow-design.md](./docs/workflow-design.md) — 流程设计模块与 Monorepo 集成

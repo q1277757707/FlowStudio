@@ -1,8 +1,8 @@
-import type { BeeflowNodeType, NODE } from './constants';
+import type { WorkflowNodeType, NODE } from './constants';
 
-export type { BeeflowNodeType };
+export type { WorkflowNodeType };
 
-export interface BeeflowAssignee {
+export interface WorkflowAssignee {
   rid: string;
   assigneeType?: number;
   ccType?: number;
@@ -13,12 +13,12 @@ export interface BeeflowAssignee {
   roles?: string[];
 }
 
-export interface BeeflowNode {
+export interface WorkflowNode {
   key?: string;
   name: string;
-  type: BeeflowNodeType;
-  childNode?: BeeflowNode | null;
-  conditionNodes?: BeeflowConditionNode[];
+  type: WorkflowNodeType;
+  childNode?: WorkflowNode | null;
+  conditionNodes?: WorkflowConditionNode[];
   approvalType?: number;
   multiInstanceApprovalType?: number;
   flowNodeNoAuditorType?: number;
@@ -29,34 +29,34 @@ export interface BeeflowNode {
   signable?: boolean;
   backable?: boolean;
   signature?: boolean;
-  assignees?: BeeflowAssignee[];
-  ccs?: BeeflowAssignee[];
-  transactors?: BeeflowAssignee[];
+  assignees?: WorkflowAssignee[];
+  ccs?: WorkflowAssignee[];
+  transactors?: WorkflowAssignee[];
 }
 
-export interface BeeflowConditionRule {
+export interface WorkflowConditionRule {
   id?: string;
   varName: string;
   operator: number;
   val: string;
 }
 
-export interface BeeflowConditionGroup {
+export interface WorkflowConditionGroup {
   id?: string;
-  conditions: BeeflowConditionRule[];
+  conditions: WorkflowConditionRule[];
 }
 
-export interface BeeflowConditionNode {
+export interface WorkflowConditionNode {
   key?: string;
   name: string;
   type: typeof NODE.CONDITION;
   priorityLevel: number;
-  conditionGroups: BeeflowConditionGroup[];
+  conditionGroups: WorkflowConditionGroup[];
   conditionExpression?: string;
-  childNode?: BeeflowNode | null;
+  childNode?: WorkflowNode | null;
 }
 
-export interface BeeflowFlowPermission {
+export interface WorkflowFlowPermission {
   type: number;
   flowInitiators?: Array<{ id: string; type: number }>;
 }

@@ -3,22 +3,22 @@ import { ref } from 'vue';
 import { Plus } from '@element-plus/icons-vue';
 import type { WorkflowStepKind } from '@designer-core/workflow';
 import WorkflowAddMenu from '../components/WorkflowAddMenu.vue';
-import { createBeeflowNodeForKind } from './adapter';
-import type { BeeflowNode } from './types';
+import { createWorkflowNodeForKind } from './adapter';
+import type { WorkflowNode } from './types';
 
 const props = defineProps<{
-  childNodeP: BeeflowNode | null;
+  childNodeP: WorkflowNode | null;
 }>();
 
 const emit = defineEmits<{
-  'update:childNodeP': [value: BeeflowNode | null];
+  'update:childNodeP': [value: WorkflowNode | null];
 }>();
 
 const visible = ref(false);
 
 function onPick(kind: WorkflowStepKind) {
   visible.value = false;
-  emit('update:childNodeP', createBeeflowNodeForKind(kind, props.childNodeP));
+  emit('update:childNodeP', createWorkflowNodeForKind(kind, props.childNodeP));
 }
 </script>
 

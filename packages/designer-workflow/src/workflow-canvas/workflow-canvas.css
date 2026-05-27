@@ -1,5 +1,5 @@
 /* 流程画布 — 与 FlowStudio 表单设计区主题对齐 */
-.flow-beeflow-canvas {
+.workflow-canvas-surface {
   --bf-canvas-bg: #fff;
   --bf-line: #d4d9e2;
   --bf-line-strong: #c5cad4;
@@ -14,7 +14,7 @@
   background: var(--lc-panel, #fff);
 }
 
-.flow-beeflow-canvas .flow-canvas-zoom {
+.workflow-canvas-surface .flow-canvas-zoom {
   position: absolute;
   top: 14px;
   right: 14px;
@@ -31,7 +31,7 @@
   user-select: none;
 }
 
-.flow-beeflow-canvas .flow-canvas-zoom__btn {
+.workflow-canvas-surface .flow-canvas-zoom__btn {
   display: grid;
   place-items: center;
   width: 30px;
@@ -45,18 +45,18 @@
   transition: background 0.15s, color 0.15s;
 }
 
-.flow-beeflow-canvas .flow-canvas-zoom__btn:hover:not(:disabled) {
+.workflow-canvas-surface .flow-canvas-zoom__btn:hover:not(:disabled) {
   background: #fff;
   color: var(--lc-primary, #1677ff);
   box-shadow: var(--lc-shadow-sm);
 }
 
-.flow-beeflow-canvas .flow-canvas-zoom__btn:disabled {
+.workflow-canvas-surface .flow-canvas-zoom__btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
 
-.flow-beeflow-canvas .flow-canvas-zoom__label {
+.workflow-canvas-surface .flow-canvas-zoom__label {
   min-width: 44px;
   font-size: 12px;
   font-weight: 500;
@@ -64,7 +64,7 @@
   text-align: center;
 }
 
-.flow-beeflow-canvas .flow-canvas-viewport {
+.workflow-canvas-surface .flow-canvas-viewport {
   height: 100%;
   overflow: hidden;
   cursor: grab;
@@ -72,18 +72,18 @@
   background: #fff;
 }
 
-.flow-beeflow-canvas.is-panning .flow-canvas-viewport {
+.workflow-canvas-surface.is-panning .flow-canvas-viewport {
   cursor: grabbing;
 }
 
-.flow-beeflow-canvas .flow-canvas-transform {
+.workflow-canvas-surface .flow-canvas-transform {
   display: inline-block;
   min-width: 100%;
   transform-origin: 50% 0;
   will-change: transform;
 }
 
-.flow-beeflow-canvas .flow-desgin-main {
+.workflow-canvas-surface .flow-desgin-main {
   width: 100%;
   min-height: 100%;
   padding: 40px 24px 0;
@@ -91,7 +91,7 @@
   user-select: none;
 }
 
-.flow-beeflow-canvas .flow-desgin-main .box-scale {
+.workflow-canvas-surface .flow-desgin-main .box-scale {
   display: inline-block;
   position: relative;
   width: 100%;
@@ -101,8 +101,8 @@
   background: #fff;
 }
 
-.flow-beeflow-canvas .node-wrap,
-.flow-beeflow-canvas .branch-wrap {
+.workflow-canvas-surface .node-wrap,
+.workflow-canvas-surface .branch-wrap {
   display: inline-flex;
   width: 100%;
   flex-direction: column;
@@ -114,8 +114,8 @@
   position: relative;
 }
 
-.flow-beeflow-canvas .node-wrap .node-wrap-box,
-.flow-beeflow-canvas .node-wrap .node-wrap-box.end-node {
+.workflow-canvas-surface .node-wrap .node-wrap-box,
+.workflow-canvas-surface .node-wrap .node-wrap-box.end-node {
   position: relative;
   width: var(--bf-node-width);
   min-height: var(--bf-node-height);
@@ -134,13 +134,13 @@
     border-color 0.2s ease;
 }
 
-.flow-beeflow-canvas .node-wrap .node-wrap-box:hover:not(.is-selected) {
+.workflow-canvas-surface .node-wrap .node-wrap-box:hover:not(.is-selected) {
   border-color: #d9d9d9;
   box-shadow: var(--lc-shadow-md);
 }
 
-.flow-beeflow-canvas .node-wrap .node-wrap-box.is-selected,
-.flow-beeflow-canvas .auto-judge.is-selected {
+.workflow-canvas-surface .node-wrap .node-wrap-box.is-selected,
+.workflow-canvas-surface .auto-judge.is-selected {
   --bf-node-accent: var(--lc-primary, #1677ff);
   border-color: color-mix(in srgb, var(--bf-node-accent) 48%, #fff);
   box-shadow:
@@ -148,35 +148,35 @@
     0 0 0 3px color-mix(in srgb, var(--bf-node-accent) 12%, transparent);
 }
 
-.flow-beeflow-canvas .node-wrap .node-wrap-box.is-selected .content {
+.workflow-canvas-surface .node-wrap .node-wrap-box.is-selected .content {
   background: color-mix(in srgb, var(--bf-node-accent) 9%, #fff);
   border-radius: 0 0 calc(var(--bf-node-radius) - 1px) calc(var(--bf-node-radius) - 1px);
 }
 
-.flow-beeflow-canvas .auto-judge.is-selected .content-wrapper {
+.workflow-canvas-surface .auto-judge.is-selected .content-wrapper {
   background: color-mix(in srgb, var(--bf-node-accent) 9%, #fff);
   border-radius: 0 0 calc(var(--bf-node-radius) - 1px) calc(var(--bf-node-radius) - 1px);
 }
 
-.flow-beeflow-canvas .node-wrap .node-wrap-box.is-selected .content-chevron {
+.workflow-canvas-surface .node-wrap .node-wrap-box.is-selected .content-chevron {
   color: var(--bf-node-accent);
 }
 
-.flow-beeflow-canvas .auto-judge.is-selected .content {
+.workflow-canvas-surface .auto-judge.is-selected .content {
   color: #434343;
 }
 
-.flow-beeflow-canvas .auto-judge.is-selected .sort-left:hover,
-.flow-beeflow-canvas .auto-judge.is-selected .sort-right:hover {
+.workflow-canvas-surface .auto-judge.is-selected .sort-left:hover,
+.workflow-canvas-surface .auto-judge.is-selected .sort-right:hover {
   background: color-mix(in srgb, var(--bf-node-accent) 12%, #fff);
   color: var(--bf-node-accent);
 }
 
-.flow-beeflow-canvas .node-wrap .start-node::before {
+.workflow-canvas-surface .node-wrap .start-node::before {
   content: none !important;
 }
 
-.flow-beeflow-canvas .node-wrap .node-wrap-box:not(.start-node)::before {
+.workflow-canvas-surface .node-wrap .node-wrap-box:not(.start-node)::before {
   content: '';
   position: absolute;
   top: -8px;
@@ -190,7 +190,7 @@
   background: transparent;
 }
 
-.flow-beeflow-canvas .node-wrap .title {
+.workflow-canvas-surface .node-wrap .title {
   border-radius: calc(var(--bf-node-radius) - 1px) calc(var(--bf-node-radius) - 1px) 0 0;
   height: 30px;
   display: flex;
@@ -203,8 +203,8 @@
   box-sizing: border-box;
 }
 
-.flow-beeflow-canvas .node-wrap .content,
-.flow-beeflow-canvas .branch-wrap .content {
+.workflow-canvas-surface .node-wrap .content,
+.workflow-canvas-surface .branch-wrap .content {
   flex: 1;
   display: flex;
   align-items: center;
@@ -216,7 +216,7 @@
   text-align: left;
 }
 
-.flow-beeflow-canvas .text {
+.workflow-canvas-surface .text {
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -224,33 +224,33 @@
   white-space: nowrap;
 }
 
-.flow-beeflow-canvas .content-chevron {
+.workflow-canvas-surface .content-chevron {
   color: #bfbfbf;
   flex-shrink: 0;
   font-size: 14px;
 }
 
-.flow-beeflow-canvas .placeholder {
+.workflow-canvas-surface .placeholder {
   color: var(--lc-text-secondary, #8c8c8c);
 }
 
-.flow-beeflow-canvas .close {
+.workflow-canvas-surface .close {
   display: none;
   cursor: pointer;
   color: rgb(255 255 255 / 85%);
   flex-shrink: 0;
 }
 
-.flow-beeflow-canvas .close:hover {
+.workflow-canvas-surface .close:hover {
   color: #fff;
 }
 
-.flow-beeflow-canvas .node-wrap .node-wrap-box:hover .close,
-.flow-beeflow-canvas .auto-judge:hover .close {
+.workflow-canvas-surface .node-wrap .node-wrap-box:hover .close,
+.workflow-canvas-surface .auto-judge:hover .close {
   display: flex;
 }
 
-.flow-beeflow-canvas .branch-wrap .branch-box-wrap {
+.workflow-canvas-surface .branch-wrap .branch-box-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -258,7 +258,7 @@
   flex-shrink: 0;
 }
 
-.flow-beeflow-canvas .branch-box {
+.workflow-canvas-surface .branch-box {
   display: flex;
   overflow: visible;
   min-height: 180px;
@@ -269,7 +269,7 @@
   position: relative;
 }
 
-.flow-beeflow-canvas .col-box {
+.workflow-canvas-surface .col-box {
   position: relative;
   display: inline-flex;
   flex-direction: column;
@@ -277,7 +277,7 @@
   background: var(--bf-canvas-bg);
 }
 
-.flow-beeflow-canvas .col-box::before {
+.workflow-canvas-surface .col-box::before {
   content: '';
   position: absolute;
   top: 0;
@@ -291,21 +291,21 @@
   background: var(--bf-line);
 }
 
-.flow-beeflow-canvas .condition-node,
-.flow-beeflow-canvas .condition-node-box {
+.workflow-canvas-surface .condition-node,
+.workflow-canvas-surface .condition-node-box {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
 }
 
-.flow-beeflow-canvas .condition-node-box {
+.workflow-canvas-surface .condition-node-box {
   position: relative;
   padding: 30px 50px 0;
   justify-content: center;
   flex-grow: 1;
 }
 
-.flow-beeflow-canvas .condition-node-box::before {
+.workflow-canvas-surface .condition-node-box::before {
   content: '';
   position: absolute;
   top: 0;
@@ -319,12 +319,12 @@
   background: var(--bf-line);
 }
 
-.flow-beeflow-canvas .condition-node-box > * {
+.workflow-canvas-surface .condition-node-box > * {
   position: relative;
   z-index: 1;
 }
 
-.flow-beeflow-canvas .auto-judge {
+.workflow-canvas-surface .auto-judge {
   position: relative;
   width: var(--bf-node-width);
   min-height: var(--bf-node-height);
@@ -338,17 +338,17 @@
   transition: box-shadow 0.18s, border-color 0.18s;
 }
 
-.flow-beeflow-canvas .auto-judge:hover:not(.is-selected) {
+.workflow-canvas-surface .auto-judge:hover:not(.is-selected) {
   border-color: #d9d9d9;
   box-shadow: var(--lc-shadow-md);
 }
 
-.flow-beeflow-canvas .auto-judge.is-selected:hover,
-.flow-beeflow-canvas .node-wrap .node-wrap-box.is-selected:hover {
+.workflow-canvas-surface .auto-judge.is-selected:hover,
+.workflow-canvas-surface .node-wrap .node-wrap-box.is-selected:hover {
   border-color: color-mix(in srgb, var(--bf-node-accent) 62%, #fff);
 }
 
-.flow-beeflow-canvas .auto-judge .title-wrapper {
+.workflow-canvas-surface .auto-judge .title-wrapper {
   font-size: 12px;
   font-weight: 500;
   color: #13c2c2;
@@ -364,31 +364,31 @@
   background: #f6ffed;
 }
 
-.flow-beeflow-canvas .auto-judge .priority-title {
+.workflow-canvas-surface .auto-judge .priority-title {
   font-size: 11px;
   color: var(--lc-text-secondary, #8c8c8c);
   flex-shrink: 0;
 }
 
-.flow-beeflow-canvas .auto-judge.default-branch-node .title-wrapper {
+.workflow-canvas-surface .auto-judge.default-branch-node .title-wrapper {
   color: #8c8c8c;
   background: #fafafa;
 }
 
-.flow-beeflow-canvas .auto-judge.default-branch-node,
-.flow-beeflow-canvas .auto-judge.default-branch-node .title-wrapper {
+.workflow-canvas-surface .auto-judge.default-branch-node,
+.workflow-canvas-surface .auto-judge.default-branch-node .title-wrapper {
   color: #8c8c8c;
 }
 
-.flow-beeflow-canvas .content-wrapper {
+.workflow-canvas-surface .content-wrapper {
   display: flex;
   width: 100%;
   align-items: center;
   min-height: 40px;
 }
 
-.flow-beeflow-canvas .sort-left,
-.flow-beeflow-canvas .sort-right {
+.workflow-canvas-surface .sort-left,
+.workflow-canvas-surface .sort-right {
   display: flex;
   align-items: center;
   padding: 0 4px;
@@ -398,13 +398,13 @@
   transition: background 0.15s, color 0.15s;
 }
 
-.flow-beeflow-canvas .sort-left:hover,
-.flow-beeflow-canvas .sort-right:hover {
+.workflow-canvas-surface .sort-left:hover,
+.workflow-canvas-surface .sort-right:hover {
   background: var(--lc-primary-light, #e6f4ff);
   color: var(--lc-primary, #1677ff);
 }
 
-.flow-beeflow-canvas .add-branch {
+.workflow-canvas-surface .add-branch {
   position: absolute;
   top: -16px;
   left: 50%;
@@ -426,13 +426,13 @@
   transition: border-color 0.15s, background 0.15s;
 }
 
-.flow-beeflow-canvas .add-branch:hover {
+.workflow-canvas-surface .add-branch:hover {
   border-color: #91caff;
   background: var(--lc-primary-light, #e6f4ff);
 }
 
-.flow-beeflow-canvas .top-left-cover-line,
-.flow-beeflow-canvas .top-right-cover-line {
+.workflow-canvas-surface .top-left-cover-line,
+.workflow-canvas-surface .top-right-cover-line {
   position: absolute;
   top: -4px;
   width: 50%;
@@ -441,8 +441,8 @@
   z-index: 2;
 }
 
-.flow-beeflow-canvas .bottom-left-cover-line,
-.flow-beeflow-canvas .bottom-right-cover-line {
+.workflow-canvas-surface .bottom-left-cover-line,
+.workflow-canvas-surface .bottom-right-cover-line {
   position: absolute;
   bottom: -4px;
   width: 50%;
@@ -451,17 +451,17 @@
   z-index: 2;
 }
 
-.flow-beeflow-canvas .top-left-cover-line,
-.flow-beeflow-canvas .bottom-left-cover-line {
+.workflow-canvas-surface .top-left-cover-line,
+.workflow-canvas-surface .bottom-left-cover-line {
   left: -1px;
 }
 
-.flow-beeflow-canvas .top-right-cover-line,
-.flow-beeflow-canvas .bottom-right-cover-line {
+.workflow-canvas-surface .top-right-cover-line,
+.workflow-canvas-surface .bottom-right-cover-line {
   right: -1px;
 }
 
-.flow-beeflow-canvas .add-node-btn-box {
+.workflow-canvas-surface .add-node-btn-box {
   width: var(--bf-node-width);
   display: inline-flex;
   flex-direction: column;
@@ -470,7 +470,7 @@
   flex-shrink: 0;
 }
 
-.flow-beeflow-canvas .add-node-btn-box::before {
+.workflow-canvas-surface .add-node-btn-box::before {
   content: '';
   position: absolute;
   top: 0;
@@ -484,7 +484,7 @@
   background: var(--bf-line);
 }
 
-.flow-beeflow-canvas .add-node-btn {
+.workflow-canvas-surface .add-node-btn {
   display: flex;
   justify-content: center;
   width: 100%;
@@ -493,7 +493,7 @@
   z-index: 1;
 }
 
-.flow-beeflow-canvas .add-node-btn .btn {
+.workflow-canvas-surface .add-node-btn .btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -509,21 +509,21 @@
   transition: transform 0.15s, box-shadow 0.15s;
 }
 
-.flow-beeflow-canvas .add-node-btn .btn:hover {
+.workflow-canvas-surface .add-node-btn .btn:hover {
   transform: scale(1.06);
   box-shadow: 0 4px 12px rgb(22 119 255 / 40%);
 }
 
-.flow-beeflow-canvas .node-wrap .node-wrap-box.end-node .title {
+.workflow-canvas-surface .node-wrap .node-wrap-box.end-node .title {
   background: #bfbfbf;
 }
 
-.flow-beeflow-canvas .node-wrap .node-wrap-box.end-node .content {
+.workflow-canvas-surface .node-wrap .node-wrap-box.end-node .content {
   color: #595959;
   cursor: pointer;
 }
 
-.flow-beeflow-canvas .editable-title-input {
+.workflow-canvas-surface .editable-title-input {
   width: 100%;
   height: 20px;
   margin: 0;

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import type { WorkflowConditionGroupDraft, WorkflowStartSettings } from '@designer-core/workflow';
-import { beeflowGroupsToDraft, normalizeConditionGroups } from '../flow-beeflow/condition';
-import { NODE } from '../flow-beeflow/constants';
-import { findBeeflowNodeByKey } from '../flow-beeflow/findNode';
-import { normalizeBeeflowNodeDraft } from '../flow-beeflow/nodeNormalize';
-import type { BeeflowNode } from '../flow-beeflow/types';
+import { conditionGroupsToDraft, normalizeConditionGroups } from '../workflow-canvas/condition';
+import { NODE } from '../workflow-canvas/constants';
+import { findWorkflowNodeByKey } from '../workflow-canvas/findNode';
+import { normalizeWorkflowNodeDraft } from '../workflow-canvas/nodeNormalize';
+import type { WorkflowNode } from '../workflow-canvas/types';
 import { useWorkflowStore } from '../store/workflow';
 import WorkflowConditionEditor from './WorkflowConditionEditor.vue';
 import WorkflowApproverPanel from './workflow-drawer/WorkflowApproverPanel.vue';
@@ -17,7 +17,7 @@ import '../styles/workflow-drawer.css';
 const workflow = useWorkflowStore();
 
 const draftStartSettings = ref<WorkflowStartSettings>({ initiatorMode: 'all' });
-const draftBeeflowNode = ref<BeeflowNode | null>(null);
+const draftWorkflowNode = ref<WorkflowNode | null>(null);
 const draftConditionGroups = ref<WorkflowConditionGroupDraft[]>([]);
 const draftBranchLabel = ref('');
 
@@ -56,20 +56,20 @@ function loadDraftFromSelection() {
   const sel = workflow.selection;
   if (sel.target === 'start') {
     draftStartSettings.value = cloneJson(workflow.startSettings);
-    draftBeeflowNode.value = null;
+    draftWorkflowNode.value = null;
     return;
   }
   if (sel.target === 'branchCondition' && workflow.selectedBranch) {
-    draftConditionGroups.value = beeflowGroupsToDraft(
+    draftConditionGroups.value = conditionGroupsToDraft(
       normalizeConditionGroups(workflow.selectedBranch.conditionGroups)
     );
     draftBranchLabel.value = workflow.selectedBranch.label;
-    draftBeeflowNode.value = null;
+    draftWorkflowNode.value = null;
     return;
   }
   if ((sel.target === 'step' || sel.target === 'branchStep') && sel.stepKey) {
-    const node = findBeeflowNodeByKey(workflow.nodeConfig, sel.stepKey);
-    draftBeeflowNode.value = node ? normalizeBeeflowNodeDraft(node) : null;
+    const node = findWorkflowNodeByKey(workflow.nodeConfig, sel.stepKey);
+    draftWorkflowNode.value = node ? normalizeWorkflowNodeDraft(node) : null;
   }
 }
 
@@ -91,9 +91,9 @@ function confirmDrawer() {
     workflow.updateBranchLabel(sel.blockKey, sel.branchKey, draftBranchLabel.value.trim() || '条件');
   } else if (
     (sel.target === 'step' || sel.target === 'branchStep') &&
-    draftBeeflowNode.value
+    draftWorkflowNode.value
   ) {
-    workflow.updateBeeflowNode(sel.stepKey, cloneJson(draftBeeflowNode.value));
+    workflow.updateWorkflowNode(sel.stepKey, cloneJson(draftWorkflowNode.value));
   }
   workflow.selectEnd();
 }
@@ -117,8 +117,8 @@ function cancelDrawer() {
     :close-on-press-escape="true"
     :show-close="!isStepDrawer && !isBranchCondition"
   >
-    <template v-if="isStepDrawer && draftBeeflowNode" #header>
-      <WorkflowEditableTitle v-model="draftBeeflowNode.name" />
+    <template v-if="isStepDrawer && draftWorkflowNode" #header>
+      <WorkflowEditableTitle v-model="draftWorkflowNode.name" />
     </template>
 
     <template v-else-if="!isBranchCondition" #header>
@@ -174,16 +174,16 @@ function cancelDrawer() {
         />
       </template>
 
-      <template v-else-if="draftBeeflowNode?.type === NODE.APPROVE">
-        <WorkflowApproverPanel v-model="draftBeeflowNode" />
+      <template v-else-if="draftWorkflowNode?.type === NODE.APPROVE">
+        <WorkflowApproverPanel v-model="draftWorkflowNode" />
       </template>
 
-      <template v-else-if="draftBeeflowNode?.type === NODE.COPY">
-        <WorkflowCopyerPanel v-model="draftBeeflowNode" />
+      <template v-else-if="draftWorkflowNode?.type === NODE.COPY">
+        <WorkflowCopyerPanel v-model="draftWorkflowNode" />
       </template>
 
-      <template v-else-if="draftBeeflowNode?.type === NODE.TRANSACT">
-        <WorkflowTransactPanel v-model="draftBeeflowNode" />
+      <template v-else-if="draftWorkflowNode?.type === NODE.TRANSACT">
+        <WorkflowTransactPanel v-model="draftWorkflowNode" />
       </template>
     </div>
 

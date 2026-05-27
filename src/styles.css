@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   color: #262626;
   background: #f0f2f5;
   font-family:
@@ -48,7 +48,7 @@ body {
   background: var(--lc-bg);
 }
 
-/* Body: sidebar + workbench 横向铺满 */
+/* Body: sidebar + workbench 妯悜閾烘弧 */
 .designer-body {
   display: flex;
   flex: 1;
@@ -56,7 +56,7 @@ body {
   overflow: hidden;
 }
 
-/* ── 步骤条 ────────────────────────────────────────────── */
+/* 鈹€鈹€ 姝ラ鏉?鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€ */
 .designer-steps {
   display: flex;
   flex: 1;
@@ -234,50 +234,6 @@ body {
   background: var(--lc-bg);
 }
 
-.designer-workbench--workflow {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  background: var(--lc-bg);
-}
-
-.workflow-panel__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
-  gap: 16px;
-  height: 48px;
-  padding: 0 16px;
-  background: var(--lc-panel);
-  border-bottom: 1px solid var(--lc-border-light);
-}
-
-.workflow-panel__hint {
-  margin: 0;
-  color: var(--lc-text-secondary);
-  font-size: 12px;
-  line-height: 1.4;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.workflow-panel__tools {
-  padding: 4px 6px;
-}
-
-.workflow-panel__tools .el-button + .el-button {
-  margin-left: 4px;
-}
-
-.designer-workbench--workflow .workflow-center {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
 .designer-workbench--placeholder,
 .designer-workbench--basic {
   display: flex;
@@ -290,287 +246,6 @@ body {
 .designer-workbench--placeholder {
   align-items: center;
   justify-content: center;
-}
-
-.workflow-center {
-  flex: 1;
-  position: relative;
-  min-width: 0;
-  min-height: 0;
-  overflow: hidden;
-  background: transparent;
-}
-
-.workflow-center--drawer {
-  flex: 1;
-}
-
-/* 流程节点属性抽屉 */
-.workflow-node-drawer-modal {
-  background: rgb(0 0 0 / 25%) !important;
-}
-
-.workflow-node-drawer .el-drawer__header {
-  margin-bottom: 0;
-  padding: 16px 20px 12px;
-  border-bottom: 1px solid var(--lc-border-light);
-}
-
-.workflow-node-drawer.el-drawer {
-  display: flex;
-  flex-direction: column;
-}
-
-.workflow-node-drawer .el-drawer__body {
-  flex: 1;
-  min-height: 0;
-  padding: 0 20px 12px;
-  overflow: auto;
-}
-
-.workflow-node-drawer .el-drawer__footer {
-  flex-shrink: 0;
-  padding: 12px 20px 16px;
-  border-top: 1px solid var(--lc-border-light);
-}
-
-.workflow-node-drawer__footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.workflow-node-drawer__header {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-
-.workflow-node-drawer__title {
-  color: #262626;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 1.3;
-}
-
-.workflow-node-drawer__subtitle {
-  color: var(--lc-text-secondary);
-  font-size: 12px;
-  line-height: 1.4;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.workflow-property-panel--drawer .property-section {
-  margin-top: 8px;
-}
-
-.workflow-radio-group--vertical {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-}
-
-.workflow-radio-group--vertical .el-radio {
-  height: auto;
-  margin-right: 0;
-  white-space: normal;
-}
-
-.workflow-node-drawer--condition .el-drawer__header {
-  display: none;
-}
-
-.workflow-node-drawer--condition .el-drawer__body {
-  padding: 16px 20px 12px;
-}
-
-.workflow-condition-editor__header {
-  margin-bottom: 16px;
-}
-
-.workflow-condition-editor__title-row {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.workflow-condition-editor__title {
-  margin: 0;
-  color: #262626;
-  font-size: 18px;
-  font-weight: 600;
-  line-height: 1.3;
-}
-
-.workflow-condition-editor__title-input {
-  flex: 1;
-  max-width: 200px;
-}
-
-.workflow-condition-editor__title-edit {
-  padding: 4px;
-  color: #8c8c8c;
-}
-
-.workflow-condition-editor__subtitle {
-  margin: 6px 0 0;
-  color: var(--lc-text-secondary);
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.workflow-condition-editor__or {
-  margin: 0 0 12px;
-  color: var(--lc-text-secondary);
-  font-size: 12px;
-  text-align: center;
-}
-
-.workflow-condition-group {
-  margin-bottom: 12px;
-  overflow: hidden;
-  border: 1px solid var(--lc-border);
-  border-radius: var(--lc-radius);
-  background: #fff;
-}
-
-.workflow-condition-group__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 36px;
-  padding: 0 12px;
-  border-bottom: 1px solid var(--lc-border-light);
-  background: #f5f5f5;
-}
-
-.workflow-condition-group__name {
-  color: #434343;
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.workflow-condition-group__delete {
-  padding: 4px;
-  color: #8c8c8c;
-}
-
-.workflow-condition-group__delete:hover {
-  color: #ff4d4f;
-}
-
-.workflow-condition-group__body {
-  padding: 12px;
-}
-
-.workflow-condition-rule {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  margin-bottom: 12px;
-}
-
-.workflow-condition-rule:last-of-type {
-  margin-bottom: 0;
-}
-
-.workflow-condition-rule__logic {
-  flex-shrink: 0;
-  width: 20px;
-  padding-top: 8px;
-  color: #8c8c8c;
-  font-size: 13px;
-  line-height: 1.4;
-  text-align: center;
-}
-
-.workflow-condition-rule__main {
-  position: relative;
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-right: 24px;
-}
-
-.workflow-condition-rule__delete {
-  position: absolute;
-  top: -2px;
-  right: 0;
-  z-index: 1;
-  padding: 2px;
-  color: #bfbfbf;
-}
-
-.workflow-condition-rule__delete:hover {
-  color: #ff4d4f;
-}
-
-.workflow-condition-rule__control {
-  width: 100%;
-}
-
-.workflow-condition-rule__control .el-select__wrapper,
-.workflow-condition-rule__control--input .el-input__wrapper {
-  min-height: 36px;
-  background: #f5f5f5;
-  box-shadow: none;
-}
-
-.workflow-condition-rule__control .el-select__wrapper:hover,
-.workflow-condition-rule__control--input .el-input__wrapper:hover {
-  background: #f0f0f0;
-}
-
-.workflow-condition-rule__control .el-select__wrapper.is-focused,
-.workflow-condition-rule__control--input .el-input__wrapper.is-focus {
-  background: #fff;
-  box-shadow: 0 0 0 1px var(--lc-primary) inset;
-}
-
-.workflow-condition-group__add-rule {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: 12px;
-  padding: 0;
-  border: none;
-  background: none;
-  color: var(--lc-primary);
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.workflow-condition-group__add-rule:hover {
-  color: var(--lc-primary-hover);
-}
-
-.workflow-condition-editor__add-group {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  width: 100%;
-  height: 40px;
-  margin-top: 4px;
-  border: 1px dashed var(--lc-border);
-  border-radius: var(--lc-radius);
-  background: #fafafa;
-  color: #595959;
-  font-size: 13px;
-  cursor: pointer;
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
-}
-
-.workflow-condition-editor__add-group:hover {
-  border-color: #91caff;
-  background: var(--lc-primary-light);
-  color: var(--lc-primary);
 }
 
 .designer-center {
@@ -973,7 +648,7 @@ body.is-panel-resizing * {
   min-height: 0;
 }
 
-/* draggable 子项与渲染器占满页面宽度 */
+/* draggable 瀛愰」涓庢覆鏌撳櫒鍗犳弧椤甸潰瀹藉害 */
 .canvas-drop-zone > * {
   width: 100%;
 }
@@ -1217,7 +892,7 @@ html.page-docs-preview #app {
   font-size: 14px;
 }
 
-/* Event guide standalone page（覆盖设计器全局 overflow:hidden） */
+/* Event guide standalone page锛堣鐩栬璁″櫒鍏ㄥ眬 overflow:hidden锛?*/
 html.page-event-guide {
   height: auto;
   overflow: auto;

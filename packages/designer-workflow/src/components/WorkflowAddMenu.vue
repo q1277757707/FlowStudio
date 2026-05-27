@@ -7,7 +7,7 @@ import {
 } from '@element-plus/icons-vue';
 import type { WorkflowStepKind } from '@designer-core/workflow';
 import { getWorkflowStepKindLabel } from '@designer-core/workflow';
-import { NODE_COLOR } from '../flow-beeflow/constants';
+import { NODE_COLOR } from '../workflow-canvas/constants';
 
 const emit = defineEmits<{ pick: [kind: WorkflowStepKind] }>();
 

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import { getAssigneeType } from '../../flow-beeflow/assignee';
-import { NODE } from '../../flow-beeflow/constants';
-import { syncTransactMultiInstanceType } from '../../flow-beeflow/nodeNormalize';
-import type { BeeflowNode } from '../../flow-beeflow/types';
+import { getAssigneeType } from '../../workflow-canvas/assignee';
+import { NODE } from '../../workflow-canvas/constants';
+import { syncTransactMultiInstanceType } from '../../workflow-canvas/nodeNormalize';
+import type { WorkflowNode } from '../../workflow-canvas/types';
 import WorkflowAssigneeList from './WorkflowAssigneeList.vue';
 
-const model = defineModel<BeeflowNode>({ required: true });
+const model = defineModel<WorkflowNode>({ required: true });
 
 const viewTab = ref(0);
 

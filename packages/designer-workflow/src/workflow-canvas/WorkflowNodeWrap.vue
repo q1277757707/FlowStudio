@@ -2,22 +2,22 @@
 import { computed, ref } from 'vue';
 import { ArrowLeft, ArrowRight, Close, Plus } from '@element-plus/icons-vue';
 import { useWorkflowStore } from '../store/workflow';
-import BeeflowAddNode from './BeeflowAddNode.vue';
-import { formatBeeflowStartSummary } from './adapter';
-import { formatBeeflowNodeAssigneeSummary } from './assignee';
+import WorkflowInsertNode from './WorkflowInsertNode.vue';
+import { formatWorkflowStartSummary } from './adapter';
+import { formatWorkflowNodeAssigneeSummary } from './assignee';
 import { nodeAccentVars } from './accent';
 import { formatConditionSummary } from './condition';
-import { isBeeflowLinearNodeType, MIN_CONDITION_BRANCHES, NODE, NODE_COLOR } from './constants';
-import type { BeeflowConditionNode, BeeflowNode } from './types';
+import { isWorkflowLinearNodeType, MIN_CONDITION_BRANCHES, NODE, NODE_COLOR } from './constants';
+import type { WorkflowConditionNode, WorkflowNode } from './types';
 
 const props = defineProps<{
-  nodeConfig: BeeflowNode;
-  flowPermission: import('./types').BeeflowFlowPermission;
+  nodeConfig: WorkflowNode;
+  flowPermission: import('./types').WorkflowFlowPermission;
 }>();
 
 const emit = defineEmits<{
-  'update:nodeConfig': [value: BeeflowNode | null];
-  'update:flowPermission': [value: import('./types').BeeflowFlowPermission];
+  'update:nodeConfig': [value: WorkflowNode | null];
+  'update:flowPermission': [value: import('./types').WorkflowFlowPermission];
 }>();
 
 const workflow = useWorkflowStore();
@@ -37,8 +37,8 @@ const nodeNameInputList = ref<boolean[]>([]);
 
 const showNodeContent = computed(() => {
   const node = props.nodeConfig;
-  if (node.type === NODE.START) return formatBeeflowStartSummary(props.flowPermission);
-  const summary = formatBeeflowNodeAssigneeSummary(node);
+  if (node.type === NODE.START) return formatWorkflowStartSummary(props.flowPermission);
+  const summary = formatWorkflowNodeAssigneeSummary(node);
   if (summary) return summary;
   if (node.type === NODE.APPROVE) return '发起人本人';
   return '';
@@ -48,11 +48,11 @@ function isDefaultBranchNode(idx: number) {
   return props.nodeConfig.conditionNodes?.[idx]?.name === '默认条件';
 }
 
-function getGatewayBranch(_gateway: BeeflowNode, index: number): BeeflowConditionNode {
+function getGatewayBranch(_gateway: WorkflowNode, index: number): WorkflowConditionNode {
   return props.nodeConfig.conditionNodes![index];
 }
 
-function showConditionContent(_gateway: BeeflowNode, index: number) {
+function showConditionContent(_gateway: WorkflowNode, index: number) {
   const branch = getGatewayBranch(_gateway, index);
   const summary = formatConditionSummary(branch.conditionGroups);
   if (summary) return summary;
@@ -60,7 +60,7 @@ function showConditionContent(_gateway: BeeflowNode, index: number) {
   return step?.condition?.trim() || '请设置条件';
 }
 
-function hasConditionConfigured(branch: BeeflowConditionNode) {
+function hasConditionConfigured(branch: WorkflowConditionNode) {
   return Boolean(formatConditionSummary(branch.conditionGroups));
 }
 
@@ -105,7 +105,7 @@ function canRemoveConditionBranch() {
   return editable.length >= MIN_CONDITION_BRANCHES;
 }
 
-function unwrapGatewayRemovingBranch(gateway: BeeflowNode, deleteIndex: number): BeeflowNode | null {
+function unwrapGatewayRemovingBranch(gateway: WorkflowNode, deleteIndex: number): WorkflowNode | null {
   const nodes = gateway.conditionNodes ?? [];
   const kept = nodes[deleteIndex === 0 ? 1 : 0];
   let head = kept?.childNode ?? null;
@@ -115,7 +115,7 @@ function unwrapGatewayRemovingBranch(gateway: BeeflowNode, deleteIndex: number):
   return head;
 }
 
-function mergeNodeChain(head: BeeflowNode, tail: BeeflowNode): BeeflowNode {
+function mergeNodeChain(head: WorkflowNode, tail: WorkflowNode): WorkflowNode {
   reconnectNode(head, tail);
   return head;
 }
@@ -126,7 +126,7 @@ function onConditionRemove(index: number) {
   const nodes = gateway.conditionNodes ?? [];
   if (nodes.length <= MIN_CONDITION_BRANCHES) {
     emit('update:nodeConfig', unwrapGatewayRemovingBranch(gateway, index));
-    workflow.syncFromBeeflow();
+    workflow.syncFromNodeConfig();
     return;
   }
   nodes.splice(index, 1);
@@ -135,10 +135,10 @@ function onConditionRemove(index: number) {
     if (item.name !== '默认条件') item.name = `条件${idx + 1}`;
   });
   emit('update:nodeConfig', gateway);
-  workflow.syncFromBeeflow();
+  workflow.syncFromNodeConfig();
 }
 
-function reconnectNode(data: BeeflowNode, addData: BeeflowNode) {
+function reconnectNode(data: WorkflowNode, addData: WorkflowNode) {
   if (!data.childNode) { data.childNode = addData; }
   else { reconnectNode(data.childNode, addData); }
 }
@@ -151,16 +151,16 @@ function branchSwitchIdx(index: number, type = 1) {
   emit('update:nodeConfig', gateway);
 }
 
-function updateChildNode(child: BeeflowNode | null) {
+function updateChildNode(child: WorkflowNode | null) {
   props.nodeConfig.childNode = child;
   emit('update:nodeConfig', props.nodeConfig);
-  workflow.syncFromBeeflow();
+  workflow.syncFromNodeConfig();
 }
 
-function patchGatewayChild(branch: BeeflowConditionNode, child: BeeflowNode | null) {
+function patchGatewayChild(branch: WorkflowConditionNode, child: WorkflowNode | null) {
   branch.childNode = child;
   emit('update:nodeConfig', props.nodeConfig);
-  workflow.syncFromBeeflow();
+  workflow.syncFromNodeConfig();
 }
 
 const isCardSelected = computed(() => {
@@ -172,7 +172,7 @@ const isCardSelected = computed(() => {
   return false;
 });
 
-function isBranchSelected(branch: BeeflowConditionNode) {
+function isBranchSelected(branch: WorkflowConditionNode) {
   const sel = workflow.selection;
   if (!props.nodeConfig.key || !branch.key) return false;
   return (
@@ -195,7 +195,7 @@ function onNodeCardClick(priorityLevel?: number) {
 </script>
 
 <template>
-  <div v-if="isBeeflowLinearNodeType(nodeConfig.type)" class="node-wrap">
+  <div v-if="isWorkflowLinearNodeType(nodeConfig.type)" class="node-wrap">
     <div
       class="node-wrap-box"
       :class="{ 'start-node': nodeConfig.type === NODE.START, 'is-selected': isCardSelected }"
@@ -226,7 +226,7 @@ function onNodeCardClick(priorityLevel?: number) {
         <el-icon class="content-chevron"><ArrowRight /></el-icon>
       </div>
     </div>
-    <BeeflowAddNode :child-node-p="nodeConfig.childNode ?? null" @update:child-node-p="updateChildNode" />
+    <WorkflowInsertNode :child-node-p="nodeConfig.childNode ?? null" @update:child-node-p="updateChildNode" />
   </div>
 
   <div v-if="nodeConfig.type === NODE.EXCLUSIVE_GATEWANY" class="branch-wrap">
@@ -277,17 +277,17 @@ function onNodeCardClick(priorityLevel?: number) {
                   <div v-if="index !== (nodeConfig.conditionNodes?.length ?? 0) - 1 && !isDefaultBranchNode(index + 1)" class="sort-right" @click.stop="branchSwitchIdx(index)"><el-icon><ArrowRight /></el-icon></div>
                 </div>
               </div>
-              <BeeflowAddNode :child-node-p="item.childNode ?? null" @update:child-node-p="(n) => patchGatewayChild(item, n)" />
+              <WorkflowInsertNode :child-node-p="item.childNode ?? null" @update:child-node-p="(n) => patchGatewayChild(item, n)" />
             </div>
           </div>
-          <BeeflowNodeWrap v-if="item.childNode" :node-config="item.childNode" :flow-permission="flowPermission" @update:node-config="(n) => patchGatewayChild(item, n)" />
+          <WorkflowNodeWrap v-if="item.childNode" :node-config="item.childNode" :flow-permission="flowPermission" @update:node-config="(n) => patchGatewayChild(item, n)" />
           <template v-if="index === 0"><div class="top-left-cover-line" /><div class="bottom-left-cover-line" /></template>
           <template v-if="index === (nodeConfig.conditionNodes?.length ?? 0) - 1"><div class="top-right-cover-line" /><div class="bottom-right-cover-line" /></template>
         </div>
       </div>
-      <BeeflowAddNode :child-node-p="nodeConfig.childNode ?? null" @update:child-node-p="updateChildNode" />
+      <WorkflowInsertNode :child-node-p="nodeConfig.childNode ?? null" @update:child-node-p="updateChildNode" />
     </div>
   </div>
 
-  <BeeflowNodeWrap v-if="nodeConfig.childNode" :node-config="nodeConfig.childNode" :flow-permission="flowPermission" @update:node-config="updateChildNode" />
+  <WorkflowNodeWrap v-if="nodeConfig.childNode" :node-config="nodeConfig.childNode" :flow-permission="flowPermission" @update:node-config="updateChildNode" />
 </template>

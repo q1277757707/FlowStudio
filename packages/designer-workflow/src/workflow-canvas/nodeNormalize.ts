@@ -1,15 +1,15 @@
 import { ASSIGNEE, getAssigneeType, newRid } from './assignee';
 import { NODE } from './constants';
-import type { BeeflowAssignee, BeeflowNode } from './types';
+import type { WorkflowAssignee, WorkflowNode } from './types';
 
-function ensureAssignee(item?: BeeflowAssignee): BeeflowAssignee {
+function ensureAssignee(item?: WorkflowAssignee): WorkflowAssignee {
   if (!item) return { rid: newRid(), assigneeType: ASSIGNEE.SELF };
   if (!item.rid) item.rid = newRid();
   return item;
 }
 
 /** 对齐 ref ApproverDrawer：根据审批人数量与类型修正 multiInstanceApprovalType */
-export function syncApprovalMultiInstanceType(node: BeeflowNode) {
+export function syncApprovalMultiInstanceType(node: WorkflowNode) {
   if (node.type !== NODE.APPROVE) return;
   const assignees = node.assignees ?? [];
   if (!assignees.length) return;
@@ -36,7 +36,7 @@ export function syncApprovalMultiInstanceType(node: BeeflowNode) {
   }
 }
 
-export function syncTransactMultiInstanceType(node: BeeflowNode) {
+export function syncTransactMultiInstanceType(node: WorkflowNode) {
   if (node.type !== NODE.TRANSACT) return;
   const list = node.transactors ?? [];
   if (list.length > 1 && (node.multiInstanceApprovalType ?? 0) === 0) {
@@ -44,8 +44,8 @@ export function syncTransactMultiInstanceType(node: BeeflowNode) {
   }
 }
 
-export function normalizeBeeflowNodeDraft(node: BeeflowNode): BeeflowNode {
-  const draft = JSON.parse(JSON.stringify(node)) as BeeflowNode;
+export function normalizeWorkflowNodeDraft(node: WorkflowNode): WorkflowNode {
+  const draft = JSON.parse(JSON.stringify(node)) as WorkflowNode;
 
   if (draft.type === NODE.APPROVE) {
     draft.approvalType ??= 0;

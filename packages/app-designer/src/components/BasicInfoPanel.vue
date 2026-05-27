@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Plus, UserFilled } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
-import { useWorkflowStore } from '../store/workflow';
+import { useWorkflowStore } from '@designer-workflow';
 
 const workflow = useWorkflowStore();
 

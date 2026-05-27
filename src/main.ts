@@ -5,7 +5,7 @@ import "element-plus/dist/index.css";
 
 import App from "./App.vue";
 import "./styles.css";
-import "@app-designer/flow-beeflow/flow-beeflow.css";
+import "@designer-workflow";
 
 const pinia = createPinia();
 
