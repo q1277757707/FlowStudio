@@ -2,17 +2,7 @@
 
 **FlowStudio** — 一个用于构建企业工作流、事件编排与动态应用的可视化低代码平台。
 
-## 如何预览 Markdown
-
-### 在 Cursor / VS Code 里（推荐装插件）
-
-1. 打开本仓库后，若提示安装推荐扩展，点 **安装**（或命令面板 `Extensions: Show Recommended Extensions`）。
-2. 推荐扩展：
-   - **Markdown All in One** — 目录、快捷键、预览增强
-   - **Markdown Preview Github Styling** — 预览样式接近 GitHub
-3. 打开任意 `docs/**/*.md`，按 **Ctrl+Shift+V**（侧边预览 **Ctrl+K V**）即可预览。
-
-### 在浏览器里（开发服务器）
+## 预览文档（开发服务器）
 
 ```bash
 npm run dev

@@ -17,6 +17,16 @@ npm run dev    # 设计器 + 文档预览（自动打开两个页面）
 npm run docs   # 仅打开文档预览
 ```
 
+## 页面截图
+
+### 设计器总览
+
+![设计器总览](./docs/assets/designer-shell.png)
+
+### 流程设计
+
+![流程设计](./docs/assets/workflow-designer.png)
+
 ## 文档
 
 - [docs/README.md](./docs/README.md) — 文档索引
