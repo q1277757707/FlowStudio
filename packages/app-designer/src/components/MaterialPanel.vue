@@ -84,9 +84,11 @@ function iconComponent(name: string) {
           >
             <template #item="{ element }">
               <div class="material-card" :data-component-type="element.type" :title="element.name">
-                <el-icon class="material-card__icon">
-                  <component :is="iconComponent(element.icon)" />
-                </el-icon>
+                <span class="material-card__icon-wrap">
+                  <el-icon class="material-card__icon">
+                    <component :is="iconComponent(element.icon)" />
+                  </el-icon>
+                </span>
                 <span class="material-card__name">{{ element.name }}</span>
               </div>
             </template>
