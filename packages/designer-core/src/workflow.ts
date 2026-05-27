@@ -26,12 +26,25 @@ export interface WorkflowStepDraft {
   condition?: string;
 }
 
+export interface WorkflowConditionRuleDraft {
+  id?: string;
+  varName: string;
+  operator: number;
+  val: string;
+}
+
+export interface WorkflowConditionGroupDraft {
+  id?: string;
+  conditions: WorkflowConditionRuleDraft[];
+}
+
 export interface WorkflowConditionBranchDraft {
   key: string;
   label: string;
   priority: number;
   isDefault: boolean;
   condition: string;
+  conditionGroups?: WorkflowConditionGroupDraft[];
   steps: WorkflowFlowItem[];
 }
 
@@ -336,6 +349,68 @@ function resolveAssigneeFromMode(step: WorkflowStepDraft): WorkflowApprovalNode[
   return { type, value: step.assigneeValue, mode: step.assigneeMode };
 }
 
+function pushStepNode(nodes: WorkflowNode[], step: WorkflowStepDraft, nextKey: string) {
+  const assignee = resolveAssigneeFromMode(step);
+  if (step.kind === 'approval') {
+    nodes.push({
+      key: step.key,
+      type: 'approval',
+      name: step.name,
+      assignee,
+      approveMode: step.approveMode ?? 'or',
+      condition: step.condition,
+      nextKey
+    });
+    return;
+  }
+  if (step.kind === 'cc') {
+    nodes.push({ key: step.key, type: 'cc', name: step.name, assignee, nextKey });
+    return;
+  }
+  if (step.kind === 'handler') {
+    nodes.push({ key: step.key, type: 'handler', name: step.name, assignee, nextKey });
+  }
+}
+
+/** 将 flowItems 顺序编译为节点链，返回入口 key */
+function compileFlowItemsChain(
+  items: WorkflowFlowItem[],
+  exitKey: string,
+  nodes: WorkflowNode[]
+): string {
+  if (!items.length) return exitKey;
+
+  let entryKey = exitKey;
+
+  for (let i = items.length - 1; i >= 0; i--) {
+    const item = items[i];
+    if (item.type === 'step') {
+      pushStepNode(nodes, item.step, entryKey);
+      entryKey = item.step.key;
+      continue;
+    }
+
+    const block = item.block;
+    const mergeKey = entryKey;
+    const branches = block.branches.map((branch) => ({
+      key: branch.key,
+      expression: branch.condition?.trim() || (branch.isDefault ? 'default' : ''),
+      nextKey: compileFlowItemsChain(branch.steps, mergeKey, nodes)
+    }));
+
+    nodes.push({
+      key: block.key,
+      type: 'condition',
+      name: '条件分支',
+      branches,
+      nextKey: mergeKey
+    });
+    entryKey = block.key;
+  }
+
+  return entryKey;
+}
+
 export function compileWorkflowTemplate(
   meta: Pick<WorkflowTemplate, 'code' | 'name' | 'version' | 'status'>,
   flowItems: WorkflowFlowItem[],
@@ -345,25 +420,15 @@ export function compileWorkflowTemplate(
   const endKey = 'end';
   const nodes: WorkflowNode[] = [];
 
-  const steps = flowItems.filter((i) => i.type === 'step').map((i) => (i as { type: 'step'; step: WorkflowStepDraft }).step);
-  const firstKey = steps[0]?.key ?? endKey;
+  const firstKey = compileFlowItemsChain(flowItems, endKey, nodes);
 
-  nodes.push({
-    key: startKey, type: 'start', nextKey: firstKey,
-    initiatorMode: start.initiatorMode, initiatorValue: start.initiatorValue,
+  nodes.unshift({
+    key: startKey,
+    type: 'start',
+    nextKey: firstKey,
+    initiatorMode: start.initiatorMode,
+    initiatorValue: start.initiatorValue,
     initiatorLabel: formatInitiatorLabel(start)
-  });
-
-  steps.forEach((step, idx) => {
-    const nextKey = steps[idx + 1]?.key ?? endKey;
-    const assignee = resolveAssigneeFromMode(step);
-    if (step.kind === 'approval') {
-      nodes.push({ key: step.key, type: 'approval', name: step.name, assignee, approveMode: step.approveMode ?? 'or', nextKey });
-    } else if (step.kind === 'cc') {
-      nodes.push({ key: step.key, type: 'cc', name: step.name, assignee, nextKey });
-    } else if (step.kind === 'handler') {
-      nodes.push({ key: step.key, type: 'handler', name: step.name, assignee, nextKey });
-    }
   });
 
   nodes.push({ key: endKey, type: 'end' });

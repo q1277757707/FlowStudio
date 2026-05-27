@@ -22,7 +22,6 @@ import {
   type WorkflowValidationResult
 } from '@designer-core/workflow';
 import {
-  compileFromBeeflow,
   createInitialFlowPermission,
   createInitialNodeConfig,
   ensureNodeKeys,
@@ -30,7 +29,10 @@ import {
   nodeConfigToFlowItems,
   nodeConfigToStartSettings
 } from '../flow-beeflow/adapter';
+import { draftGroupsToBeeflow, formatConditionSummary } from '../flow-beeflow/condition';
+import { findBeeflowNodeByKey, patchBeeflowNodeByKey } from '../flow-beeflow/findNode';
 import type { BeeflowFlowPermission, BeeflowNode } from '../flow-beeflow/types';
+import type { WorkflowConditionGroupDraft } from '@designer-core/workflow';
 import { useDesignerStore } from './designer';
 
 const STORAGE_KEY = 'lc-workflow-template-draft-v5';
@@ -221,10 +223,18 @@ export const useWorkflowStore = defineStore('workflow', () => {
 
   init();
 
-  const compiledTemplate = computed(() =>
-    compileFromBeeflow(templateMeta.value, nodeConfig.value, flowPermission.value, compileWorkflowTemplate)
-  );
+  const compiledTemplate = computed(() => {
+    const items = nodeConfigToFlowItems(nodeConfig.value);
+    const start = nodeConfigToStartSettings(nodeConfig.value, flowPermission.value);
+    return compileWorkflowTemplate(templateMeta.value, items, start);
+  });
+
   const templateJson = computed(() => JSON.stringify(compiledTemplate.value, null, 2));
+
+  /** 打开 JSON 等导出前：以画布 nodeConfig 为准刷新 flowItems，保证与最新编辑一致 */
+  function refreshFlowSnapshot() {
+    syncFromBeeflow();
+  }
 
   const selectedStep = computed((): WorkflowStepDraft | undefined => {
     const sel = selection.value;
@@ -283,9 +293,40 @@ export const useWorkflowStore = defineStore('workflow', () => {
     if (step) Object.assign(step, patch);
   }
 
+  function updateBeeflowNode(stepKey: string, node: BeeflowNode) {
+    if (!patchBeeflowNodeByKey(nodeConfig.value, stepKey, node)) return;
+    ensureNodeKeys(nodeConfig.value);
+    syncFromBeeflow();
+  }
+
   function updateBranchCondition(blockKey: string, branchKey: string, condition: string) {
     const branch = findBranchInTree(flowItems.value, blockKey, branchKey);
-    if (branch) branch.condition = condition;
+    if (!branch) return;
+    branch.condition = condition;
+    branch.conditionGroups = condition.trim()
+      ? [{ conditions: [{ varName: 'expr', operator: 0, val: condition }] }]
+      : [];
+    syncToBeeflow();
+  }
+
+  function updateBranchConditionGroups(
+    blockKey: string,
+    branchKey: string,
+    groups: WorkflowConditionGroupDraft[]
+  ) {
+    const branch = findBranchInTree(flowItems.value, blockKey, branchKey);
+    if (!branch) return;
+    const normalized = draftGroupsToBeeflow(groups);
+    branch.conditionGroups = groups;
+    branch.condition = formatConditionSummary(normalized);
+    syncToBeeflow();
+  }
+
+  function updateBranchLabel(blockKey: string, branchKey: string, label: string) {
+    const branch = findBranchInTree(flowItems.value, blockKey, branchKey);
+    if (!branch) return;
+    branch.label = label;
+    syncToBeeflow();
   }
 
   function addBranchToBlock(blockKey: string) {
@@ -345,9 +386,10 @@ export const useWorkflowStore = defineStore('workflow', () => {
     compiledTemplate, templateJson, lastValidation,
     setStartSettings, insertFlowItemAt, insertStepAt: insertFlowItemAt,
     insertFlowItemInBranch, insertBranchStepAt: insertFlowItemInBranch,
-    removeFlowItemAt, removeStep, updateStep, updateBranchCondition, addBranchToBlock,
+    removeFlowItemAt, removeStep, updateStep, updateBeeflowNode, updateBranchCondition,
+    updateBranchConditionGroups, updateBranchLabel, addBranchToBlock,
     selectStart, selectEnd, selectStep, selectBranchCondition, selectBranchStep, isSelectedStep,
-    runValidation, resetTemplate, loadFromTemplate,
+    runValidation, resetTemplate, loadFromTemplate, refreshFlowSnapshot,
     cloneWorkflowTemplate, walkFlowItems
   };
 });

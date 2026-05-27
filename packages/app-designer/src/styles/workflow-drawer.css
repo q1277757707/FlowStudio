@@ -1,0 +1,182 @@
+/* 对齐 .ref-workflow-engine 审批/抄送/办理 Drawer */
+.wf-editable-title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.wf-editable-title__text {
+  color: #1f2329;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.wf-editable-title__edit {
+  padding: 4px;
+  color: #8c8c8c;
+}
+
+.wf-drawer-section {
+  margin-top: 20px;
+}
+
+.wf-drawer-section__label {
+  margin-bottom: 10px;
+  color: #1f2329;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.wf-drawer-section__input {
+  margin-top: 8px;
+  width: 100%;
+}
+
+.wf-drawer-tabs {
+  margin-top: 20px;
+}
+
+.wf-drawer-tab-pane {
+  margin-top: 12px;
+}
+
+.wf-radio-vertical {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.wf-radio-vertical .el-radio {
+  height: auto;
+  margin-right: 0;
+}
+
+.wf-assignee-list__add {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--lc-primary, #1677ff);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.wf-assignee-card {
+  margin-top: 6px;
+  border: 1px solid #e4e5e7;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.wf-assignee-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 36px;
+  padding: 0 16px;
+  background: #f5f6f7;
+  color: #1f2329;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.wf-assignee-card__delete {
+  padding: 4px;
+  color: #8c8c8c;
+}
+
+.wf-assignee-card__delete:hover {
+  color: #ff4d4f;
+}
+
+.wf-assignee-card__body {
+  padding: 12px 16px 14px;
+}
+
+.wf-assignee-card__radios {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px 4px;
+  width: 100%;
+}
+
+.wf-assignee-card__radios .el-radio {
+  height: auto;
+  margin-right: 0;
+  white-space: nowrap;
+}
+
+.wf-assignee-card__sub {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #dee0e3;
+}
+
+.wf-assignee-card__sub-title {
+  margin: 0 0 8px;
+  color: #1f2329;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.wf-assignee-card__sub-title .wf-muted {
+  color: #8f959e;
+  font-weight: 400;
+  font-size: 13px;
+}
+
+.wf-layer-select__tip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: #8f959e;
+  font-size: 12px;
+}
+
+.wf-layer-select__control {
+  width: 100%;
+}
+
+.wf-drawer-tip {
+  padding: 12px;
+  border-radius: 6px;
+  background: #f5f6f7;
+}
+
+.wf-drawer-tip__title {
+  margin: 0 0 6px;
+  color: #1f2329;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.wf-drawer-tip__text {
+  margin: 0;
+  color: #8f959e;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.wf-auth-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.workflow-node-drawer--step {
+  width: 540px !important;
+}
+
+.workflow-node-drawer--step .el-drawer__header {
+  display: none;
+}
+
+.workflow-node-drawer--step .el-drawer__body {
+  padding: 16px 20px 12px;
+}

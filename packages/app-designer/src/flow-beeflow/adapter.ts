@@ -10,6 +10,12 @@ import {
   createEmptyStep,
   formatInitiatorLabel
 } from '@designer-core/workflow';
+import {
+  beeflowGroupsToDraft,
+  draftGroupsToBeeflow,
+  formatConditionSummary,
+  normalizeConditionGroups
+} from './condition';
 import { isBeeflowStepNodeType, NODE } from './constants';
 import type { BeeflowConditionNode, BeeflowFlowPermission, BeeflowNode } from './types';
 
@@ -65,17 +71,42 @@ function stepToBeeflowNode(step: WorkflowStepDraft, childNode: BeeflowNode | nul
   };
 
   if (step.kind === 'approval') {
-    return { ...base, type: NODE.APPROVE, approvalType: 0, multiInstanceApprovalType: step.approveMode === 'and' ? 1 : 0, assignees: [assigneeObj] };
+    const multi = step.approveMode === 'and' ? 1 : step.approveMode === 'or' ? 2 : 0;
+    return {
+      ...base,
+      type: NODE.APPROVE,
+      approvalType: 0,
+      multiInstanceApprovalType: multi,
+      flowNodeNoAuditorType: 0,
+      flowNodeSelfAuditorType: 0,
+      assignable: true,
+      signable: true,
+      backable: true,
+      assignees: [assigneeObj]
+    };
   }
   if (step.kind === 'cc') {
-    return { ...base, type: NODE.COPY, ccs: [assigneeObj] };
+    return {
+      ...base,
+      type: NODE.COPY,
+      ccs: [{ ...assigneeObj, ccType: assigneeType, assigneeType }]
+    };
   }
-  return { ...base, type: NODE.TRANSACT, transactors: [assigneeObj] };
+  return {
+    ...base,
+    type: NODE.TRANSACT,
+    transactors: [{ ...assigneeObj, transactorType: assigneeType, assigneeType }]
+  };
 }
 
-function beeflowAssigneeToMode(assignee?: { assigneeType: number }): WorkflowStepDraft['assigneeMode'] {
+function beeflowAssigneeToMode(assignee?: {
+  assigneeType?: number;
+  ccType?: number;
+  transactorType?: number;
+}): WorkflowStepDraft['assigneeMode'] {
   if (!assignee) return 'initiatorSelf';
-  switch (assignee.assigneeType) {
+  const type = assignee.ccType ?? assignee.transactorType ?? assignee.assigneeType ?? 0;
+  switch (type) {
     case 0: return 'initiatorSelf';
     case 1: return 'initiatorManager';
     case 3: return 'specifiedRoles';
@@ -84,17 +115,33 @@ function beeflowAssigneeToMode(assignee?: { assigneeType: number }): WorkflowSte
   }
 }
 
-function beeflowAssigneeValue(assignee?: { assigneeType: number; assignees?: string[]; roles?: string[] }) {
+function beeflowAssigneeValue(assignee?: {
+  assigneeType?: number;
+  ccType?: number;
+  transactorType?: number;
+  assignees?: string[];
+  roles?: string[];
+}) {
   if (!assignee) return '';
-  if (assignee.assigneeType === 4) return (assignee.assignees ?? []).join(',');
-  if (assignee.assigneeType === 3) return assignee.roles?.[0] ?? '';
+  const type = assignee.ccType ?? assignee.transactorType ?? assignee.assigneeType ?? 0;
+  if (type === 4) return (assignee.assignees ?? []).join(',');
+  if (type === 3) return assignee.roles?.[0] ?? '';
   return '';
 }
 
 function beeflowToStep(node: BeeflowNode): WorkflowStepDraft | null {
   if (node.type === NODE.APPROVE) {
     const assignee = node.assignees?.[0];
-    return { key: node.key ?? newKey('approval'), kind: 'approval', name: node.name || '审批', assigneeMode: beeflowAssigneeToMode(assignee), assigneeValue: beeflowAssigneeValue(assignee), approveMode: node.multiInstanceApprovalType === 1 ? 'and' : 'or' };
+    const approveMode =
+      node.multiInstanceApprovalType === 1 ? 'and' : node.multiInstanceApprovalType === 2 ? 'or' : 'or';
+    return {
+      key: node.key ?? newKey('approval'),
+      kind: 'approval',
+      name: node.name || '审批',
+      assigneeMode: beeflowAssigneeToMode(assignee),
+      assigneeValue: beeflowAssigneeValue(assignee),
+      approveMode
+    };
   }
   if (node.type === NODE.COPY) {
     const cc = node.ccs?.[0];
@@ -115,9 +162,13 @@ function branchToGateway(block: ReturnType<typeof createDefaultBranchBlock>, chi
       name: branch.label,
       type: NODE.CONDITION,
       priorityLevel: branch.priority ?? index + 1,
-      conditionGroups: branch.condition?.trim()
-        ? [{ conditions: [{ varName: 'expr', operator: 0, val: branch.condition }] }]
-        : [],
+      conditionGroups: branch.conditionGroups?.length
+        ? draftGroupsToBeeflow(branch.conditionGroups)
+        : branch.condition?.trim()
+          ? normalizeConditionGroups([
+              { conditions: [{ varName: 'expr', operator: 0, val: branch.condition }] }
+            ])
+          : [],
       childNode: flowItemsToChildNode(branch.steps)
     }));
 
@@ -188,10 +239,7 @@ function collectBranchSteps(condition: BeeflowConditionNode): WorkflowFlowItem[]
 }
 
 function extractConditionText(cond: BeeflowConditionNode): string {
-  const group = cond.conditionGroups?.[0];
-  const first = group?.conditions?.[0] as { val?: string } | undefined;
-  if (typeof first?.val === 'string') return first.val;
-  return '';
+  return formatConditionSummary(cond.conditionGroups);
 }
 
 function gatewayToFlowItems(node: BeeflowNode): WorkflowFlowItem[] {
@@ -205,6 +253,7 @@ function gatewayToFlowItems(node: BeeflowNode): WorkflowFlowItem[] {
       priority: cond.priorityLevel ?? index + 1,
       isDefault: false,
       condition: extractConditionText(cond),
+      conditionGroups: beeflowGroupsToDraft(cond.conditionGroups),
       steps: collectBranchSteps(cond)
     }));
   block.branches = branches.length ? branches : createDefaultBranchBlock().branches;

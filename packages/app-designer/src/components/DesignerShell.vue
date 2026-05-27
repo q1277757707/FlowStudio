@@ -26,7 +26,13 @@ const steps: Array<{ key: StepKey; label: string }> = [
 
 const workMode = computed(() => activeStep.value);
 
+function openWorkflowJson() {
+  workflow.refreshFlowSnapshot();
+  workflowSchemaVisible.value = true;
+}
+
 async function copyWorkflowJson() {
+  workflow.refreshFlowSnapshot();
   await navigator.clipboard.writeText(workflow.templateJson);
   ElMessage.success('流程 JSON 已复制');
 }
@@ -118,7 +124,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown));
           <p class="workflow-panel__hint">点击节点配置审批人、条件与分支；拖拽空白区域平移画布</p>
           <div class="canvas-toolbar">
             <div class="canvas-toolbar__group workflow-panel__tools">
-              <el-button size="small" :icon="Document" @click="workflowSchemaVisible = true">流程 JSON</el-button>
+              <el-button size="small" :icon="Document" @click="openWorkflowJson">流程 JSON</el-button>
               <el-button size="small" @click="workflow.resetTemplate()">重置流程</el-button>
             </div>
           </div>
@@ -139,7 +145,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown));
     </div>
 
     <!-- ── 弹窗 ─────────────────────────────────────────── -->
-    <el-dialog v-model="workflowSchemaVisible" title="流程模板 JSON" width="80%" class="schema-dialog" destroy-on-close>
+    <el-dialog v-model="workflowSchemaVisible" title="流程模板 JSON" width="80%" class="schema-dialog">
       <div class="schema-dialog__toolbar">
         <el-button type="primary" :icon="Document" @click="copyWorkflowJson">复制 JSON</el-button>
       </div>

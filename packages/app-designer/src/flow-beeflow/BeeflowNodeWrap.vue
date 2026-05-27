@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { ArrowLeft, ArrowRight, Close, Plus } from '@element-plus/icons-vue';
-import { formatAssigneeSummary } from '@designer-core/workflow';
 import { useWorkflowStore } from '../store/workflow';
 import BeeflowAddNode from './BeeflowAddNode.vue';
 import { formatBeeflowStartSummary } from './adapter';
+import { formatBeeflowNodeAssigneeSummary } from './assignee';
 import { nodeAccentVars } from './accent';
+import { formatConditionSummary } from './condition';
 import { isBeeflowLinearNodeType, MIN_CONDITION_BRANCHES, NODE, NODE_COLOR } from './constants';
 import type { BeeflowConditionNode, BeeflowNode } from './types';
 
@@ -37,15 +38,9 @@ const nodeNameInputList = ref<boolean[]>([]);
 const showNodeContent = computed(() => {
   const node = props.nodeConfig;
   if (node.type === NODE.START) return formatBeeflowStartSummary(props.flowPermission);
-  if (node.type === NODE.APPROVE) {
-    const step = workflow.findStepByKey(node.key ?? '');
-    if (step) return formatAssigneeSummary(step);
-    return '发起人本人';
-  }
-  if (node.type === NODE.COPY || node.type === NODE.TRANSACT) {
-    const step = workflow.findStepByKey(node.key ?? '');
-    return step ? formatAssigneeSummary(step) : '';
-  }
+  const summary = formatBeeflowNodeAssigneeSummary(node);
+  if (summary) return summary;
+  if (node.type === NODE.APPROVE) return '发起人本人';
   return '';
 });
 
@@ -59,8 +54,14 @@ function getGatewayBranch(_gateway: BeeflowNode, index: number): BeeflowConditio
 
 function showConditionContent(_gateway: BeeflowNode, index: number) {
   const branch = getGatewayBranch(_gateway, index);
+  const summary = formatConditionSummary(branch.conditionGroups);
+  if (summary) return summary;
   const step = workflow.findBranchByKeys(props.nodeConfig.key ?? '', branch.key ?? '');
   return step?.condition?.trim() || '请设置条件';
+}
+
+function hasConditionConfigured(branch: BeeflowConditionNode) {
+  return Boolean(formatConditionSummary(branch.conditionGroups));
 }
 
 function onNameInputClick(index?: number) {
@@ -268,7 +269,7 @@ function onNodeCardClick(priorityLevel?: number) {
                 <div class="content-wrapper">
                   <div v-if="index !== 0" class="sort-left" @click.stop="branchSwitchIdx(index, -1)"><el-icon><ArrowLeft /></el-icon></div>
                   <div class="content" @click.stop="onNodeCardClick(item.priorityLevel)">
-                    <span v-if="!(item.conditionGroups?.length && item.conditionGroups[0]?.conditions?.length)" class="placeholder">请设置条件</span>
+                    <span v-if="!hasConditionConfigured(item)" class="placeholder">请设置条件</span>
                     <el-tooltip v-else :content="showConditionContent(nodeConfig, index)" placement="top">
                       <span class="text">{{ showConditionContent(nodeConfig, index) }}</span>
                     </el-tooltip>
