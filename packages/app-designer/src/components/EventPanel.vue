@@ -162,7 +162,7 @@ function removeAction(actionId: string) {
     <div v-if="bottomTab === 'events'" class="event-panel__body">
       <div class="event-panel__triggers">
         <div class="event-panel__section-title">触发事件</div>
-        <el-empty v-if="!designer.selectedNode" description="请选择组件" :image-size="48" />
+        <el-empty v-if="!designer.selectedNode" description="请选择组件" :image-size="32" />
         <ul v-else class="event-trigger-list">
           <li
             v-for="event in materialEvents"
@@ -210,44 +210,45 @@ function removeAction(actionId: string) {
           </div>
         </div>
 
-        <el-empty
-          v-if="!designer.selectedNode"
-          description="请选择画布组件以配置事件"
-          :image-size="56"
-        />
+        <div class="event-panel__actions-scroll">
+          <el-empty
+            v-if="!designer.selectedNode"
+            description="请选择画布组件以配置事件"
+            :image-size="32"
+          />
 
-        <template v-else>
-          <div v-if="currentActions.length" class="action-flow">
-            <div
-              v-for="(action, index) in currentActions"
-              :key="action.id"
-              class="action-flow__item"
-            >
+          <template v-else>
+            <div v-if="currentActions.length" class="action-flow">
               <div
-                class="action-card"
-                :class="{ 'is-selected': selectedActionId === action.id }"
-                @click="selectedActionId = action.id ?? ''"
+                v-for="(action, index) in currentActions"
+                :key="action.id"
+                class="action-flow__item"
               >
-                <div class="action-card__head">
-                  <span class="action-card__type">
-                    {{ getActionMeta(action.type ?? action.action)?.label ?? action.action }}
-                  </span>
-                  <el-button
-                    :icon="Delete"
-                    text
-                    type="danger"
-                    @click.stop="action.id && removeAction(action.id)"
-                  />
+                <div
+                  class="action-card"
+                  :class="{ 'is-selected': selectedActionId === action.id }"
+                  @click="selectedActionId = action.id ?? ''"
+                >
+                  <div class="action-card__head">
+                    <span class="action-card__type">
+                      {{ getActionMeta(action.type ?? action.action)?.label ?? action.action }}
+                    </span>
+                    <el-button
+                      :icon="Delete"
+                      text
+                      type="danger"
+                      @click.stop="action.id && removeAction(action.id)"
+                    />
+                  </div>
+                  <div class="action-card__detail">{{ action.id }}</div>
                 </div>
-                <div class="action-card__detail">{{ action.id }}</div>
+                <span v-if="index < currentActions.length - 1" class="action-flow__arrow">→</span>
               </div>
-              <span v-if="index < currentActions.length - 1" class="action-flow__arrow">→</span>
             </div>
-          </div>
 
-          <el-empty v-else description="暂无动作，请点击上方添加" :image-size="48" />
+            <el-empty v-else description="暂无动作，请点击上方添加" :image-size="32" />
 
-          <div v-if="selectedAction" class="action-config">
+            <div v-if="selectedAction" class="action-config">
             <div class="event-panel__section-title">
               动作配置 · {{ selectedActionMeta?.label }}
             </div>
@@ -303,8 +304,9 @@ function removeAction(actionId: string) {
                 <p v-if="configParseError" class="action-config__error">{{ configParseError }}</p>
               </el-collapse-item>
             </el-collapse>
-          </div>
-        </template>
+            </div>
+          </template>
+        </div>
       </div>
     </div>
 

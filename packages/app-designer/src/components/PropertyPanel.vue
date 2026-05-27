@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { ElMessage } from 'element-plus';
-import { DocumentCopy } from '@element-plus/icons-vue';
+import { computed } from "vue";
+import { ElMessage } from "element-plus";
+import { DocumentCopy } from "@element-plus/icons-vue";
 import {
   fieldValidateTypeOptions,
   getValidateOptionsForComponentType,
-  validationPropFields
-} from '@designer-core/validation';
+  validationPropFields,
+} from "@designer-core/validation";
 import {
   getMaterialByType,
   getOptionApiDefaultProps,
   isOptionApiProp,
   isOptionSourceComponent,
   isOptionStaticProp,
-  materialHasValidationSettings
-} from '@designer-materials/index';
-import { useDesignerStore } from '../store/designer';
+  materialHasValidationSettings,
+} from "@designer-materials/index";
+import { useDesignerStore } from "../store/designer";
 
 interface EditableOption {
   label: string;
@@ -57,20 +57,20 @@ const validateOptions = computed(() => {
 const showFormatRuleSelect = computed(() => validateOptions.value.length > 1);
 
 function isPropVisible(field: string): boolean {
-  const nodeType = designer.selectedNode?.type ?? '';
+  const nodeType = designer.selectedNode?.type ?? "";
 
   if (!isOptionSourceComponent(nodeType)) {
     return true;
   }
 
-  const source = String(propValue('optionsSource') ?? 'static');
+  const source = String(propValue("optionsSource") ?? "static");
 
   if (isOptionApiProp(field)) {
-    return source === 'api';
+    return source === "api";
   }
 
   if (isOptionStaticProp(field)) {
-    return source === 'static';
+    return source === "static";
   }
 
   return true;
@@ -80,7 +80,12 @@ const visibleProps = computed(() => {
   const props = selectedMaterial.value?.props ?? [];
 
   return props
-    .filter((prop) => !validationPropFields.includes(prop.field as (typeof validationPropFields)[number]))
+    .filter(
+      (prop) =>
+        !validationPropFields.includes(
+          prop.field as (typeof validationPropFields)[number],
+        ),
+    )
     .filter((prop) => isPropVisible(prop.field));
 });
 
@@ -91,7 +96,7 @@ function propValue(field: string) {
 function updateProp(field: string, value: unknown) {
   designer.updateSelectedProp(field, value);
 
-  if (field === 'optionsSource' && value === 'api' && designer.selectedNode) {
+  if (field === "optionsSource" && value === "api" && designer.selectedNode) {
     const nodeType = designer.selectedNode.type;
 
     if (isOptionSourceComponent(nodeType)) {
@@ -100,7 +105,7 @@ function updateProp(field: string, value: unknown) {
       for (const [key, defaultValue] of Object.entries(defaults)) {
         const current = designer.selectedNode.props[key];
 
-        if (current === undefined || current === '') {
+        if (current === undefined || current === "") {
           designer.updateSelectedProp(key, defaultValue);
         }
       }
@@ -109,10 +114,10 @@ function updateProp(field: string, value: unknown) {
 }
 
 function updateValidateType(value: string) {
-  updateProp('validateType', value);
+  updateProp("validateType", value);
 
-  if (value !== 'custom') {
-    updateProp('customPattern', '');
+  if (value !== "custom") {
+    updateProp("customPattern", "");
   }
 }
 
@@ -121,11 +126,16 @@ function optionItems(field: string): EditableOption[] {
   return Array.isArray(value) ? (value as EditableOption[]) : [];
 }
 
-function updateOption(field: string, index: number, key: keyof EditableOption, value: string) {
+function updateOption(
+  field: string,
+  index: number,
+  key: keyof EditableOption,
+  value: string,
+) {
   const nextOptions = [...optionItems(field)];
   nextOptions[index] = {
     ...nextOptions[index],
-    [key]: value
+    [key]: value,
   };
   updateProp(field, nextOptions);
 }
@@ -135,15 +145,15 @@ function addOption(field: string) {
     ...optionItems(field),
     {
       label: `选项${optionItems(field).length + 1}`,
-      value: `option${optionItems(field).length + 1}`
-    }
+      value: `option${optionItems(field).length + 1}`,
+    },
   ]);
 }
 
 function removeOption(field: string, index: number) {
   updateProp(
     field,
-    optionItems(field).filter((_, currentIndex) => currentIndex !== index)
+    optionItems(field).filter((_, currentIndex) => currentIndex !== index),
   );
 }
 
@@ -152,11 +162,16 @@ function transferItems(field: string): EditableTransferItem[] {
   return Array.isArray(value) ? (value as EditableTransferItem[]) : [];
 }
 
-function updateTransferItem(field: string, index: number, key: keyof EditableTransferItem, value: unknown) {
+function updateTransferItem(
+  field: string,
+  index: number,
+  key: keyof EditableTransferItem,
+  value: unknown,
+) {
   const nextItems = [...transferItems(field)];
   nextItems[index] = {
     ...nextItems[index],
-    [key]: value
+    [key]: value,
   };
   updateProp(field, nextItems);
 }
@@ -166,19 +181,19 @@ function addTransferItem(field: string) {
     ...transferItems(field),
     {
       key: `option${transferItems(field).length + 1}`,
-      label: `选项${transferItems(field).length + 1}`
-    }
+      label: `选项${transferItems(field).length + 1}`,
+    },
   ]);
 }
 
 function removeTransferItem(field: string, index: number) {
   updateProp(
     field,
-    transferItems(field).filter((_, currentIndex) => currentIndex !== index)
+    transferItems(field).filter((_, currentIndex) => currentIndex !== index),
   );
 }
 
-const selectedNodeId = computed(() => designer.selectedNode?.id ?? '');
+const selectedNodeId = computed(() => designer.selectedNode?.id ?? "");
 
 async function copyNodeId() {
   const id = selectedNodeId.value;
@@ -189,9 +204,9 @@ async function copyNodeId() {
 
   try {
     await navigator.clipboard.writeText(id);
-    ElMessage.success('节点 ID 已复制');
+    ElMessage.success("节点 ID 已复制");
   } catch {
-    ElMessage.error('复制失败，请手动选择复制');
+    ElMessage.error("复制失败，请手动选择复制");
   }
 }
 </script>
@@ -201,7 +216,11 @@ async function copyNodeId() {
     <el-tabs model-value="props" class="right-panel-tabs">
       <el-tab-pane label="属性" name="props">
         <div class="right-tab-content">
-          <el-empty v-if="!designer.selectedNode" description="请选择画布中的组件" :image-size="80" />
+          <el-empty
+            v-if="!designer.selectedNode"
+            description="请选择画布中的组件"
+            :image-size="80"
+          />
 
           <template v-else>
             <section class="property-section">
@@ -222,14 +241,25 @@ async function copyNodeId() {
                       @click="copyNodeId"
                     />
                   </div>
-                  <p class="node-id-field__hint">用于事件配置中的 form['节点ID']、联动等</p>
+                  <p class="node-id-field__hint">
+                    用于事件配置中的 form['节点ID']、联动等
+                  </p>
                 </el-form-item>
 
                 <el-form-item label="组件类型">
-                  <el-input :model-value="selectedMaterial?.name ?? designer.selectedNode.type" disabled />
+                  <el-input
+                    :model-value="
+                      selectedMaterial?.name ?? designer.selectedNode.type
+                    "
+                    disabled
+                  />
                 </el-form-item>
 
-                <el-form-item v-for="prop in visibleProps" :key="prop.field" :label="prop.label">
+                <el-form-item
+                  v-for="prop in visibleProps"
+                  :key="prop.field"
+                  :label="prop.label"
+                >
                   <el-input
                     v-if="prop.type === 'StringSetter'"
                     :model-value="String(propValue(prop.field) ?? '')"
@@ -262,47 +292,93 @@ async function copyNodeId() {
                     @update:model-value="updateProp(prop.field, $event)"
                   />
 
-                  <div v-else-if="prop.type === 'OptionSetter'" class="setter-list">
-                    <div v-for="(option, index) in optionItems(prop.field)" :key="index" class="setter-row">
+                  <div
+                    v-else-if="prop.type === 'OptionSetter'"
+                    class="setter-list"
+                  >
+                    <div
+                      v-for="(option, index) in optionItems(prop.field)"
+                      :key="index"
+                      class="setter-row"
+                    >
                       <el-input
                         class="setter-row__input"
                         :model-value="option.label"
                         placeholder="显示文案"
-                        @update:model-value="updateOption(prop.field, index, 'label', $event)"
+                        @update:model-value="
+                          updateOption(prop.field, index, 'label', $event)
+                        "
                       />
                       <el-input
                         class="setter-row__input"
                         :model-value="String(option.value)"
                         placeholder="值"
-                        @update:model-value="updateOption(prop.field, index, 'value', $event)"
+                        @update:model-value="
+                          updateOption(prop.field, index, 'value', $event)
+                        "
                       />
-                      <el-button type="danger" plain @click="removeOption(prop.field, index)">删除</el-button>
+                      <el-button
+                        type="danger"
+                        plain
+                        @click="removeOption(prop.field, index)"
+                        >删除</el-button
+                      >
                     </div>
-                    <el-button size="small" plain @click="addOption(prop.field)">添加选项</el-button>
+                    <el-button size="small" plain @click="addOption(prop.field)"
+                      >添加选项</el-button
+                    >
                   </div>
 
-                  <div v-else-if="prop.type === 'TransferSetter'" class="setter-list">
-                    <div v-for="(item, index) in transferItems(prop.field)" :key="index" class="setter-row">
+                  <div
+                    v-else-if="prop.type === 'TransferSetter'"
+                    class="setter-list"
+                  >
+                    <div
+                      v-for="(item, index) in transferItems(prop.field)"
+                      :key="index"
+                      class="setter-row"
+                    >
                       <el-input
                         class="setter-row__input"
                         :model-value="String(item.key)"
                         placeholder="键"
-                        @update:model-value="updateTransferItem(prop.field, index, 'key', $event)"
+                        @update:model-value="
+                          updateTransferItem(prop.field, index, 'key', $event)
+                        "
                       />
                       <el-input
                         class="setter-row__input"
                         :model-value="item.label"
                         placeholder="显示文案"
-                        @update:model-value="updateTransferItem(prop.field, index, 'label', $event)"
+                        @update:model-value="
+                          updateTransferItem(prop.field, index, 'label', $event)
+                        "
                       />
                       <el-switch
                         :model-value="Boolean(item.disabled)"
                         active-text="禁用"
-                        @update:model-value="updateTransferItem(prop.field, index, 'disabled', $event)"
+                        @update:model-value="
+                          updateTransferItem(
+                            prop.field,
+                            index,
+                            'disabled',
+                            $event,
+                          )
+                        "
                       />
-                      <el-button type="danger" plain @click="removeTransferItem(prop.field, index)">删除</el-button>
+                      <el-button
+                        type="danger"
+                        plain
+                        @click="removeTransferItem(prop.field, index)"
+                        >删除</el-button
+                      >
                     </div>
-                    <el-button size="small" plain @click="addTransferItem(prop.field)">添加数据</el-button>
+                    <el-button
+                      size="small"
+                      plain
+                      @click="addTransferItem(prop.field)"
+                      >添加数据</el-button
+                    >
                   </div>
                 </el-form-item>
               </el-form>
@@ -345,11 +421,16 @@ async function copyNodeId() {
                     placeholder="例如 ^[A-Za-z0-9_]{4,16}$"
                     @update:model-value="updateProp('customPattern', $event)"
                   />
-                  <p class="validation-hint">输入 JavaScript 正则表达式，不含首尾斜杠</p>
+                  <p class="validation-hint">
+                    输入 JavaScript 正则表达式，不含首尾斜杠
+                  </p>
                 </el-form-item>
 
                 <el-alert
-                  v-if="propValue('validateType') === 'custom' && !propValue('customPattern')"
+                  v-if="
+                    propValue('validateType') === 'custom' &&
+                    !propValue('customPattern')
+                  "
                   type="warning"
                   :closable="false"
                   show-icon
@@ -361,11 +442,23 @@ async function copyNodeId() {
             <section class="property-section property-desc">
               <div class="property-section__title">组件说明</div>
               <p class="property-desc__text">
-                {{ selectedMaterial?.name }} 组件用于页面表单与内容展示，可通过右侧属性面板配置字段标识、标题、占位提示与校验规则。
+                {{
+                  selectedMaterial?.name
+                }}
+                组件用于页面表单与内容展示，可通过右侧属性面板配置字段标识、标题、占位提示与校验规则。
               </p>
-              <el-popconfirm title="确定删除该组件吗？" @confirm="designer.removeSelectedNode()">
+              <el-popconfirm
+                title="确定删除该组件吗？"
+                @confirm="designer.removeSelectedNode()"
+              >
                 <template #reference>
-                  <el-button size="small" type="danger" plain class="property-delete">删除组件</el-button>
+                  <el-button
+                    size="small"
+                    type="danger"
+                    plain
+                    class="property-delete"
+                    >删除组件</el-button
+                  >
                 </template>
               </el-popconfirm>
             </section>
@@ -375,7 +468,9 @@ async function copyNodeId() {
 
       <el-tab-pane label="样式" name="style">
         <div class="right-tab-content">
-          <el-text type="info">样式面板将在后续版本支持间距、字号、颜色等配置。</el-text>
+          <el-text type="info"
+            >样式面板将在后续版本支持间距、字号、颜色等配置。</el-text
+          >
         </div>
       </el-tab-pane>
     </el-tabs>

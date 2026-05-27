@@ -3,34 +3,41 @@ import { onUnmounted, ref } from 'vue';
 import CanvasPanel from './CanvasPanel.vue';
 import EventPanel from './EventPanel.vue';
 
-const BOTTOM_HEIGHT_KEY = 'lc-designer-bottom-panel-height';
-const DEFAULT_BOTTOM_HEIGHT = 260;
-const MIN_BOTTOM_HEIGHT = 160;
-const MIN_CANVAS_HEIGHT = 200;
+const BOTTOM_RATIO_KEY = 'lc-designer-bottom-panel-ratio-v4';
+const DEFAULT_BOTTOM_RATIO = 0.28;
+const MIN_BOTTOM_RATIO = 0.2;
+const MAX_BOTTOM_RATIO = 0.5;
+const MIN_EVENT_PANEL_PX = 240;
+const RESIZER_HEIGHT = 6;
 
 const centerRef = ref<HTMLElement | null>(null);
-const bottomHeight = ref(readStoredHeight());
+const bottomRatio = ref(readStoredRatio());
 const isResizing = ref(false);
 
-function readStoredHeight() {
-  const stored = Number(localStorage.getItem(BOTTOM_HEIGHT_KEY));
-
-  if (Number.isFinite(stored) && stored >= MIN_BOTTOM_HEIGHT) {
+function readStoredRatio() {
+  const stored = Number(localStorage.getItem(BOTTOM_RATIO_KEY));
+  if (Number.isFinite(stored) && stored >= MIN_BOTTOM_RATIO && stored <= MAX_BOTTOM_RATIO) {
     return stored;
   }
-
-  return DEFAULT_BOTTOM_HEIGHT;
+  return DEFAULT_BOTTOM_RATIO;
 }
 
-function persistHeight() {
-  localStorage.setItem(BOTTOM_HEIGHT_KEY, String(bottomHeight.value));
+function persistRatio() {
+  localStorage.setItem(BOTTOM_RATIO_KEY, String(bottomRatio.value));
 }
 
-function clampBottomHeight(next: number) {
-  const max =
-    (centerRef.value?.clientHeight ?? 600) - MIN_CANVAS_HEIGHT - 6;
+function clampRatio(ratio: number) {
+  return Math.min(Math.max(ratio, MIN_BOTTOM_RATIO), MAX_BOTTOM_RATIO);
+}
 
-  return Math.min(Math.max(next, MIN_BOTTOM_HEIGHT), Math.max(max, MIN_BOTTOM_HEIGHT));
+function updateRatioFromMouse(clientY: number) {
+  const el = centerRef.value;
+  if (!el) return;
+  const rect = el.getBoundingClientRect();
+  const available = rect.height - RESIZER_HEIGHT;
+  if (available <= 0) return;
+  const bottomHeight = rect.bottom - clientY - RESIZER_HEIGHT;
+  bottomRatio.value = clampRatio(bottomHeight / available);
 }
 
 function stopResize() {
@@ -38,16 +45,12 @@ function stopResize() {
   document.body.classList.remove('is-panel-resizing');
   document.removeEventListener('mousemove', onMouseMove);
   document.removeEventListener('mouseup', stopResize);
-  persistHeight();
+  persistRatio();
 }
 
 function onMouseMove(event: MouseEvent) {
-  if (!isResizing.value || !centerRef.value) {
-    return;
-  }
-
-  const rect = centerRef.value.getBoundingClientRect();
-  bottomHeight.value = clampBottomHeight(rect.bottom - event.clientY);
+  if (!isResizing.value) return;
+  updateRatioFromMouse(event.clientY);
 }
 
 function startResize(event: MouseEvent) {
@@ -64,7 +67,13 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div ref="centerRef" class="designer-center">
+  <div
+    ref="centerRef"
+    class="designer-center"
+    :style="{
+      gridTemplateRows: `minmax(0, 1fr) ${RESIZER_HEIGHT}px minmax(${MIN_EVENT_PANEL_PX}px, ${bottomRatio * 100}%)`
+    }"
+  >
     <div class="designer-center__canvas">
       <CanvasPanel />
     </div>
@@ -78,7 +87,7 @@ onUnmounted(() => {
       <span class="designer-center__resizer-line" />
     </div>
 
-    <div class="designer-center__bottom" :style="{ height: `${bottomHeight}px` }">
+    <div class="designer-center__bottom">
       <EventPanel />
     </div>
   </div>

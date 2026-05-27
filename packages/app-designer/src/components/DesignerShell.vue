@@ -1,168 +1,208 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue';
-import { ElMessage } from 'element-plus';
+import { computed, onMounted, onUnmounted, ref } from "vue";
+import { ElMessage } from "element-plus";
+import { Document, Setting, UserFilled } from "@element-plus/icons-vue";
+import { useDesignerStore } from "../store/designer";
 import {
-  Document,
-  RefreshLeft,
-  RefreshRight,
-  Setting,
-  UserFilled
-} from '@element-plus/icons-vue';
-import SchemaRenderer from '@designer-renderer/SchemaRenderer.vue';
-import { useDesignerStore } from '../store/designer';
-import DesignerCenter from './DesignerCenter.vue';
-import MaterialPanel from './MaterialPanel.vue';
-import PropertyPanel from './PropertyPanel.vue';
+  bindWorkflowFormFields,
+  bindWorkflowPageMeta,
+  useWorkflowStore,
+  WorkflowDesignerPanel,
+} from "@designer-workflow";
+import { collectFormFieldOptions } from "../workflow/collectFormFields";
+import DesignerCenter from "./DesignerCenter.vue";
+import MaterialPanel from "./MaterialPanel.vue";
+import PropertyPanel from "./PropertyPanel.vue";
+import BasicInfoPanel from "./BasicInfoPanel.vue";
+
+type StepKey = "basic" | "page" | "workflow" | "settings";
 
 const designer = useDesignerStore();
-const previewVisible = ref(false);
-const schemaDialogVisible = ref(false);
-const navTab = ref('page');
+const workflow = useWorkflowStore();
+const workflowSchemaVisible = ref(false);
+const activeStep = ref<StepKey>("basic");
 
-async function copySchema() {
-  await navigator.clipboard.writeText(designer.schemaJson);
-  ElMessage.success('Schema 已复制');
+const steps: Array<{ key: StepKey; label: string }> = [
+  { key: "basic", label: "基础信息" },
+  { key: "page", label: "表单设计" },
+  { key: "workflow", label: "流程设计" },
+  { key: "settings", label: "更多设置" },
+];
+
+const workMode = computed(() => activeStep.value);
+
+function openWorkflowJson() {
+  workflow.refreshFlowSnapshot();
+  workflowSchemaVisible.value = true;
+}
+
+async function copyWorkflowJson() {
+  workflow.refreshFlowSnapshot();
+  await navigator.clipboard.writeText(workflow.templateJson);
+  ElMessage.success("流程 JSON 已复制");
 }
 
 function handleSave() {
-  ElMessage.success('页面已保存');
+  ElMessage.success("已保存");
 }
 
 function isEditableTarget(target: EventTarget | null) {
-  if (!(target instanceof HTMLElement)) {
-    return false;
-  }
-
+  if (!(target instanceof HTMLElement)) return false;
   const tag = target.tagName;
-
-  return tag === 'INPUT' || tag === 'TEXTAREA' || target.isContentEditable;
+  return tag === "INPUT" || tag === "TEXTAREA" || target.isContentEditable;
 }
 
 function onKeydown(event: KeyboardEvent) {
-  if (!(event.ctrlKey || event.metaKey) || isEditableTarget(event.target)) {
+  if (!(event.ctrlKey || event.metaKey) || isEditableTarget(event.target))
     return;
-  }
-
   const key = event.key.toLowerCase();
-
-  if (key === 'z' && !event.shiftKey) {
+  if (key === "z" && !event.shiftKey) {
     event.preventDefault();
     designer.undo();
     return;
   }
-
-  if (key === 'y' || (key === 'z' && event.shiftKey)) {
+  if (key === "y" || (key === "z" && event.shiftKey)) {
     event.preventDefault();
     designer.redo();
   }
 }
 
 onMounted(() => {
-  window.addEventListener('keydown', onKeydown);
+  bindWorkflowPageMeta(() => ({
+    pageId: designer.schema.pageId,
+    pageName: designer.schema.pageName,
+  }));
+  bindWorkflowFormFields(
+    () => designer.schema.components,
+    collectFormFieldOptions,
+  );
+  window.addEventListener("keydown", onKeydown);
 });
-
-onUnmounted(() => {
-  window.removeEventListener('keydown', onKeydown);
-});
+onUnmounted(() => window.removeEventListener("keydown", onKeydown));
 </script>
 
 <template>
   <div class="designer-shell">
+    <!-- ── 顶栏 ─────────────────────────────────────────── -->
     <header class="designer-header">
       <div class="designer-header__brand">
         <div class="designer-header__logo">
-          <el-icon :size="20"><Setting /></el-icon>
+          <el-icon :size="18"><Setting /></el-icon>
         </div>
         <span class="designer-header__name">FlowStudio</span>
         <span class="designer-header__version">v1.1.0</span>
       </div>
 
-      <nav class="designer-header__nav">
-        <button
-          type="button"
-          class="designer-nav-item"
-          :class="{ 'is-active': navTab === 'page' }"
-          @click="navTab = 'page'"
-        >
-          页面设计
-        </button>
-        <button type="button" class="designer-nav-item" disabled>数据模型</button>
-        <button type="button" class="designer-nav-item" disabled>流程&amp;事件</button>
-        <button type="button" class="designer-nav-item" disabled>应用设置</button>
+      <!-- 步骤条 -->
+      <nav class="designer-steps" aria-label="设计步骤">
+        <div class="designer-steps__track">
+          <template v-for="(step, index) in steps" :key="step.key">
+            <button
+              type="button"
+              class="designer-steps__item"
+              :class="{
+                'is-active': activeStep === step.key,
+                'is-done': steps.findIndex((s) => s.key === activeStep) > index,
+              }"
+              @click="activeStep = step.key"
+            >
+              <span class="designer-steps__circle">{{ index + 1 }}</span>
+              <span class="designer-steps__label">{{ step.label }}</span>
+            </button>
+            <span
+              v-if="index < steps.length - 1"
+              class="designer-steps__chevron"
+              aria-hidden="true"
+            />
+          </template>
+        </div>
       </nav>
 
       <div class="designer-header__actions">
-        <el-button-group class="designer-header__icon-group">
-          <el-button
-            :icon="RefreshLeft"
-            text
-            title="撤销 (Ctrl+Z)"
-            :disabled="!designer.canUndo"
-            @click="designer.undo()"
-          />
-          <el-button
-            :icon="RefreshRight"
-            text
-            title="重做 (Ctrl+Y)"
-            :disabled="!designer.canRedo"
-            @click="designer.redo()"
-          />
-        </el-button-group>
+        <el-button
+          type="primary"
+          class="designer-header__save"
+          @click="handleSave"
+          >保存</el-button
+        >
 
-        <el-button @click="schemaDialogVisible = true">Schema</el-button>
-        <el-button @click="previewVisible = true">预览</el-button>
-        <el-button>发布</el-button>
-        <el-button type="primary" @click="handleSave">保存</el-button>
-
-        <el-avatar :size="32" class="designer-header__avatar">
+        <el-avatar :size="34" class="designer-header__avatar">
           <el-icon><UserFilled /></el-icon>
         </el-avatar>
       </div>
     </header>
 
-    <section class="designer-workbench">
-      <MaterialPanel />
+    <!-- ── 主体 ─────────────────────────────────────────── -->
+    <div class="designer-body">
+      <!-- 表单设计工作区 -->
+      <section
+        v-show="workMode === 'page'"
+        class="designer-workbench designer-workbench--page"
+      >
+        <MaterialPanel />
+        <DesignerCenter />
+        <PropertyPanel />
+      </section>
 
-      <DesignerCenter />
+      <!-- 流程设计工作区（v-if 避免隐藏时属性抽屉仍挂载到 body） -->
+      <section
+        v-if="workMode === 'workflow'"
+        class="designer-workbench designer-workbench--workflow"
+      >
+        <div class="workflow-panel__head">
+          <p class="workflow-panel__hint">
+            点击节点配置审批人、条件与分支；拖拽空白区域平移画布
+          </p>
+          <div class="canvas-toolbar">
+            <div class="canvas-toolbar__group workflow-panel__tools">
+              <el-button size="small" :icon="Document" @click="openWorkflowJson"
+                >流程 JSON</el-button
+              >
+              <el-button size="small" @click="workflow.resetTemplate()"
+                >重置流程</el-button
+              >
+            </div>
+          </div>
+        </div>
+        <WorkflowDesignerPanel />
+      </section>
 
-      <PropertyPanel />
-    </section>
+      <!-- 基础信息 -->
+      <section
+        v-show="workMode === 'basic'"
+        class="designer-workbench designer-workbench--basic"
+      >
+        <BasicInfoPanel />
+      </section>
 
+      <!-- 更多设置 -->
+      <section
+        v-show="workMode === 'settings'"
+        class="designer-workbench designer-workbench--placeholder"
+      >
+        <el-empty description="更多设置（开发中）" />
+      </section>
+    </div>
+
+    <!-- ── 弹窗 ─────────────────────────────────────────── -->
     <el-dialog
-      v-model="schemaDialogVisible"
-      title="页面 Schema"
+      v-model="workflowSchemaVisible"
+      title="流程模板 JSON"
       width="80%"
       class="schema-dialog"
-      destroy-on-close
     >
       <div class="schema-dialog__toolbar">
-        <el-button type="primary" :icon="Document" @click="copySchema">复制 Schema</el-button>
+        <el-button type="primary" :icon="Document" @click="copyWorkflowJson"
+          >复制 JSON</el-button
+        >
       </div>
       <el-input
         class="schema-dialog__editor"
-        :model-value="designer.schemaJson"
+        :model-value="workflow.templateJson"
         type="textarea"
         :rows="24"
         readonly
       />
-    </el-dialog>
-
-    <el-dialog
-      v-model="previewVisible"
-      title="页面预览"
-      width="80%"
-      class="preview-dialog"
-      destroy-on-close
-    >
-      <div class="preview-stage">
-        <SchemaRenderer
-          v-if="designer.schema.components.length"
-          :nodes="designer.schema.components"
-          mode="preview"
-          :page-events="designer.schema.pageEvents"
-        />
-        <el-empty v-else description="画布暂无组件" />
-      </div>
     </el-dialog>
   </div>
 </template>

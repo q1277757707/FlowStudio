@@ -1,7 +1,7 @@
-import { computed, ref } from 'vue';
-import { defineStore } from 'pinia';
-import { createDesignerHistory } from '@designer-core/history';
-import { createActionId } from '@designer-core/id';
+import { computed, ref } from "vue";
+import { defineStore } from "pinia";
+import { createDesignerHistory } from "@designer-core/history";
+import { createActionId } from "@designer-core/id";
 import {
   cloneSchema,
   createInitialSchema,
@@ -10,21 +10,21 @@ import {
   type EventAction,
   type EventActionType,
   type LowCodeNode,
-  type PageSchema
-} from '@designer-core/schema';
-import { getActionMeta } from '../constants/eventActions';
+  type PageSchema,
+} from "@designer-core/schema";
+import { getActionMeta } from "../constants/eventActions";
 
 const HISTORY_DEBOUNCE_MS = 400;
 
-export const useDesignerStore = defineStore('designer', () => {
+export const useDesignerStore = defineStore("designer", () => {
   const schema = ref<PageSchema>(createInitialSchema());
-  const selectedId = ref<string>('');
+  const selectedId = ref<string>("");
   const canUndo = ref(false);
   const canRedo = ref(false);
 
   const history = createDesignerHistory({
     schema: cloneSchema(schema.value),
-    selectedId: selectedId.value
+    selectedId: selectedId.value,
   });
 
   let commitTimer: ReturnType<typeof setTimeout> | undefined;
@@ -45,7 +45,7 @@ export const useDesignerStore = defineStore('designer', () => {
   function createSnapshot() {
     return {
       schema: cloneSchema(schema.value),
-      selectedId: selectedId.value
+      selectedId: selectedId.value,
     };
   }
 
@@ -98,7 +98,9 @@ export const useDesignerStore = defineStore('designer', () => {
     syncHistoryFlags();
   }
 
-  const selectedNode = computed(() => findNodeById(schema.value.components, selectedId.value));
+  const selectedNode = computed(() =>
+    findNodeById(schema.value.components, selectedId.value),
+  );
 
   const schemaJson = computed(() => JSON.stringify(schema.value, null, 2));
 
@@ -125,14 +127,17 @@ export const useDesignerStore = defineStore('designer', () => {
       return;
     }
 
-    schema.value.components = removeNodeById(schema.value.components, selectedId.value);
-    selectedId.value = '';
+    schema.value.components = removeNodeById(
+      schema.value.components,
+      selectedId.value,
+    );
+    selectedId.value = "";
     commitHistory();
   }
 
   function resetSchema() {
     schema.value = createInitialSchema();
-    selectedId.value = '';
+    selectedId.value = "";
     history.reset(createSnapshot());
     syncHistoryFlags();
   }
@@ -177,7 +182,7 @@ export const useDesignerStore = defineStore('designer', () => {
       id: createActionId(),
       action: type,
       type,
-      config: JSON.parse(JSON.stringify(meta.defaultConfig))
+      config: JSON.parse(JSON.stringify(meta.defaultConfig)),
     });
 
     selectedNode.value.events![eventName] = list;
@@ -190,7 +195,7 @@ export const useDesignerStore = defineStore('designer', () => {
     }
 
     selectedNode.value.events[eventName] = getEventActions(eventName).filter(
-      (item) => item.id !== actionId
+      (item) => item.id !== actionId,
     );
     commitHistory();
   }
@@ -198,9 +203,11 @@ export const useDesignerStore = defineStore('designer', () => {
   function updateEventConfig(
     eventName: string,
     actionId: string,
-    config: Record<string, unknown>
+    config: Record<string, unknown>,
   ) {
-    const target = getEventActions(eventName).find((item) => item.id === actionId);
+    const target = getEventActions(eventName).find(
+      (item) => item.id === actionId,
+    );
 
     if (!target) {
       return;
@@ -232,6 +239,6 @@ export const useDesignerStore = defineStore('designer', () => {
     setEventActions,
     addEventAction,
     removeEventAction,
-    updateEventConfig
+    updateEventConfig,
   };
 });

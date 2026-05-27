@@ -2,6 +2,8 @@
   "name": "flow-studio",
   "version": "1.1.0",
   "description": "一个用于构建企业工作流、事件编排与动态应用的可视化低代码平台。",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

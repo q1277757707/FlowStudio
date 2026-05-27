@@ -19,6 +19,8 @@
       "@designer-renderer/*": ["./packages/designer-renderer/src/*"],
       "@designer-sandbox/*": ["./packages/designer-sandbox/src/*"],
       "@designer-event/*": ["./packages/designer-event/src/*"],
+      "@designer-workflow": ["./packages/designer-workflow/src/index.ts"],
+      "@designer-workflow/*": ["./packages/designer-workflow/src/*"],
       "@app-designer/*": ["./packages/app-designer/src/*"]
     }
   },

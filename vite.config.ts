@@ -34,6 +34,7 @@ export default defineConfig({
       '@designer-renderer': fileURLToPath(new URL('./packages/designer-renderer/src', import.meta.url)),
       '@designer-sandbox': fileURLToPath(new URL('./packages/designer-sandbox/src', import.meta.url)),
       '@designer-event': fileURLToPath(new URL('./packages/designer-event/src', import.meta.url)),
+      '@designer-workflow': fileURLToPath(new URL('./packages/designer-workflow/src', import.meta.url)),
       '@app-designer': fileURLToPath(new URL('./packages/app-designer/src', import.meta.url))
     }
   }
