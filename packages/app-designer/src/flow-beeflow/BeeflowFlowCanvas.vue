@@ -4,6 +4,7 @@ import { Minus, Plus } from '@element-plus/icons-vue';
 import './flow-beeflow.css';
 import { useWorkflowStore } from '../store/workflow';
 import BeeflowNodeWrap from './BeeflowNodeWrap.vue';
+import { nodeAccentVars } from './accent';
 import { NODE, NODE_COLOR } from './constants';
 
 const workflow = useWorkflowStore();
@@ -76,7 +77,11 @@ onBeforeUnmount(() => { isPanning.value = false; });
           <div class="box-scale">
             <BeeflowNodeWrap :node-config="workflow.nodeConfig" :flow-permission="workflow.flowPermission" @update:node-config="onNodeConfigUpdate" />
             <div class="node-wrap">
-              <div class="node-wrap-box end-node">
+              <div
+                class="node-wrap-box end-node"
+                :class="{ 'is-selected': workflow.selection.target === 'end' }"
+                :style="nodeAccentVars(NODE_COLOR.END)"
+              >
                 <div class="title" :style="{ background: NODE_COLOR.END }">结束</div>
                 <div class="content" @click="workflow.selectEnd()">流程结束</div>
               </div>

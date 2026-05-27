@@ -237,30 +237,45 @@ body {
 .designer-workbench--workflow {
   display: flex;
   flex-direction: column;
-  background: #fff;
+  min-height: 0;
+  background: var(--lc-bg);
 }
 
-.designer-subtoolbar {
+.workflow-panel__head {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
   flex-shrink: 0;
-  height: 44px;
+  gap: 16px;
+  height: 48px;
   padding: 0 16px;
   background: var(--lc-panel);
-  border-bottom: 1px solid var(--lc-border);
+  border-bottom: 1px solid var(--lc-border-light);
 }
 
-.designer-subtoolbar__divider {
-  width: 1px;
-  height: 20px;
-  margin: 0 4px;
-  background: var(--lc-border);
+.workflow-panel__hint {
+  margin: 0;
+  color: var(--lc-text-secondary);
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.workflow-panel__tools {
+  padding: 4px 6px;
+}
+
+.workflow-panel__tools .el-button + .el-button {
+  margin-left: 4px;
 }
 
 .designer-workbench--workflow .workflow-center {
   flex: 1;
   min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .designer-workbench--placeholder,
@@ -279,15 +294,70 @@ body {
 
 .workflow-center {
   flex: 1;
-  background: #fff;
   position: relative;
   min-width: 0;
   min-height: 0;
   overflow: hidden;
+  background: transparent;
 }
 
 .workflow-center--drawer {
   flex: 1;
+}
+
+/* 流程节点属性抽屉 */
+.workflow-node-drawer-modal {
+  background: rgb(0 0 0 / 25%) !important;
+}
+
+.workflow-node-drawer .el-drawer__header {
+  margin-bottom: 0;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid var(--lc-border-light);
+}
+
+.workflow-node-drawer .el-drawer__body {
+  padding: 0 20px 20px;
+}
+
+.workflow-node-drawer__header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.workflow-node-drawer__title {
+  color: #262626;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.workflow-node-drawer__subtitle {
+  color: var(--lc-text-secondary);
+  font-size: 12px;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workflow-property-panel--drawer .property-section {
+  margin-top: 8px;
+}
+
+.workflow-radio-group--vertical {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.workflow-radio-group--vertical .el-radio {
+  height: auto;
+  margin-right: 0;
+  white-space: normal;
 }
 
 .designer-center {

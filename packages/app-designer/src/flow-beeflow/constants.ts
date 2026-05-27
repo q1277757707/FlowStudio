@@ -10,11 +10,12 @@ export const NODE = {
 } as const;
 
 export const NODE_COLOR = {
-  START: '#87dd8c',
-  APPROVE: '#ff943e',
-  COPY: '#3296fa',
-  TRANSACT: '#926bd5',
-  END: '#a9b4cd'
+  START: '#52c41a',
+  APPROVE: '#fa8c16',
+  COPY: '#1677ff',
+  CONDITION: '#13c2c2',
+  TRANSACT: '#722ed1',
+  END: '#8c8c8c'
 } as const;
 
 /** 条件网关至少保留的可编辑分支数（与新建时默认 2 条一致） */

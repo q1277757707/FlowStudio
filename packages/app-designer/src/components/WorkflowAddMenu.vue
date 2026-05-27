@@ -7,16 +7,17 @@ import {
 } from '@element-plus/icons-vue';
 import type { WorkflowStepKind } from '@designer-core/workflow';
 import { getWorkflowStepKindLabel } from '@designer-core/workflow';
+import { NODE_COLOR } from '../flow-beeflow/constants';
 
 const emit = defineEmits<{ pick: [kind: WorkflowStepKind] }>();
 
 const hideCondition = false;
 
 const items: Array<{ kind: WorkflowStepKind; color: string; icon: unknown }> = [
-  { kind: 'approval', color: '#ff943e', icon: UserFilled },
-  { kind: 'cc', color: '#3296fa', icon: Bell },
-  { kind: 'handler', color: '#926bd5', icon: Setting },
-  { kind: 'condition', color: '#2eb795', icon: Connection }
+  { kind: 'approval', color: '#fa8c16', icon: UserFilled },
+  { kind: 'cc', color: '#1677ff', icon: Bell },
+  { kind: 'handler', color: '#722ed1', icon: Setting },
+  { kind: 'condition', color: NODE_COLOR.CONDITION, icon: Connection }
 ];
 </script>
 

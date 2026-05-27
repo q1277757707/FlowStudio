@@ -7,4 +7,6 @@ import App from "./App.vue";
 import "./styles.css";
 import "@app-designer/flow-beeflow/flow-beeflow.css";
 
-createApp(App).use(createPinia()).use(ElementPlus).mount("#app");
+const pinia = createPinia();
+
+createApp(App).use(pinia).use(ElementPlus).mount("#app");

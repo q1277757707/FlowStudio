@@ -1,31 +1,33 @@
-/* 源自 workflow-engine NodeWrap.vue + AddNode.vue + index.vue */
+/* 流程画布 — 与 FlowStudio 表单设计区主题对齐 */
 .flow-beeflow-canvas {
   --bf-canvas-bg: #fff;
-  --bf-node-width: 260px;
-  --bf-node-height: 78px;
-  --bf-node-radius: 8px;
+  --bf-line: #d4d9e2;
+  --bf-line-strong: #c5cad4;
+  --bf-node-width: 240px;
+  --bf-node-height: 72px;
+  --bf-node-radius: var(--lc-radius, 8px);
   --bf-node-padding: 12px;
   position: relative;
   height: 100%;
   overflow: hidden;
   padding: 0;
+  background: var(--lc-panel, #fff);
 }
 
 .flow-beeflow-canvas .flow-canvas-zoom {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 14px;
+  right: 14px;
   z-index: 20;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  width: 132px;
-  height: 40px;
-  padding: 0 4px;
-  border-radius: 20px;
-  background: var(--lc-panel, #fff);
-  box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
+  justify-content: center;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 10px;
+  background: #f5f7fa;
+  border: 1px solid var(--lc-border-light, #f0f0f0);
+  box-shadow: var(--lc-shadow-sm, 0 1px 2px rgb(0 0 0 / 4%));
   user-select: none;
 }
 
@@ -36,27 +38,29 @@
   height: 30px;
   padding: 0;
   border: none;
-  border-radius: 50%;
-  background: #fff;
-  color: #262626;
+  border-radius: 7px;
+  background: transparent;
+  color: #595959;
   cursor: pointer;
-  box-shadow: 0 2px 5px rgb(0 0 0 / 10%);
+  transition: background 0.15s, color 0.15s;
 }
 
 .flow-beeflow-canvas .flow-canvas-zoom__btn:hover:not(:disabled) {
-  box-shadow: 0 8px 16px rgb(0 0 0 / 12%);
+  background: #fff;
+  color: var(--lc-primary, #1677ff);
+  box-shadow: var(--lc-shadow-sm);
 }
 
 .flow-beeflow-canvas .flow-canvas-zoom__btn:disabled {
-  opacity: 0.45;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
 .flow-beeflow-canvas .flow-canvas-zoom__label {
   min-width: 44px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
-  color: #262626;
+  color: #595959;
   text-align: center;
 }
 
@@ -65,6 +69,7 @@
   overflow: hidden;
   cursor: grab;
   touch-action: none;
+  background: #fff;
 }
 
 .flow-beeflow-canvas.is-panning .flow-canvas-viewport {
@@ -81,8 +86,8 @@
 .flow-beeflow-canvas .flow-desgin-main {
   width: 100%;
   min-height: 100%;
-  padding: 48px 24px 80px;
-  background-color: var(--bf-canvas-bg);
+  padding: 40px 24px 0;
+  background: #fff;
   user-select: none;
 }
 
@@ -91,8 +96,9 @@
   position: relative;
   width: 100%;
   min-width: min-content;
-  padding: 54px 0;
+  padding: 48px 0 80px;
   text-align: center;
+  background: #fff;
 }
 
 .flow-beeflow-canvas .node-wrap,
@@ -115,17 +121,55 @@
   min-height: var(--bf-node-height);
   max-width: var(--bf-node-width);
   flex-shrink: 0;
-  background: #fff;
+  background: var(--lc-panel, #fff);
+  border: 1px solid var(--lc-border, #e8e8e8);
   border-radius: var(--bf-node-radius);
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 2px 5px rgb(0 0 0 / 10%);
+  box-shadow: var(--lc-shadow-sm);
   box-sizing: border-box;
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
-.flow-beeflow-canvas .node-wrap .node-wrap-box:hover {
-  box-shadow: 0 13px 27px rgb(0 0 0 / 10%);
+.flow-beeflow-canvas .node-wrap .node-wrap-box:hover:not(.is-selected) {
+  border-color: #d9d9d9;
+  box-shadow: var(--lc-shadow-md);
+}
+
+.flow-beeflow-canvas .node-wrap .node-wrap-box.is-selected,
+.flow-beeflow-canvas .auto-judge.is-selected {
+  --bf-node-accent: var(--lc-primary, #1677ff);
+  border-color: color-mix(in srgb, var(--bf-node-accent) 48%, #fff);
+  box-shadow:
+    0 4px 14px color-mix(in srgb, var(--bf-node-accent) 20%, transparent),
+    0 0 0 3px color-mix(in srgb, var(--bf-node-accent) 12%, transparent);
+}
+
+.flow-beeflow-canvas .node-wrap .node-wrap-box.is-selected .content {
+  background: color-mix(in srgb, var(--bf-node-accent) 9%, #fff);
+  border-radius: 0 0 calc(var(--bf-node-radius) - 1px) calc(var(--bf-node-radius) - 1px);
+}
+
+.flow-beeflow-canvas .auto-judge.is-selected .content-wrapper {
+  background: color-mix(in srgb, var(--bf-node-accent) 9%, #fff);
+  border-radius: 0 0 calc(var(--bf-node-radius) - 1px) calc(var(--bf-node-radius) - 1px);
+}
+
+.flow-beeflow-canvas .node-wrap .node-wrap-box.is-selected .content-chevron {
+  color: var(--bf-node-accent);
+}
+
+.flow-beeflow-canvas .auto-judge.is-selected .content {
+  color: #434343;
+}
+
+.flow-beeflow-canvas .auto-judge.is-selected .sort-left:hover,
+.flow-beeflow-canvas .auto-judge.is-selected .sort-right:hover {
+  background: color-mix(in srgb, var(--bf-node-accent) 12%, #fff);
+  color: var(--bf-node-accent);
 }
 
 .flow-beeflow-canvas .node-wrap .start-node::before {
@@ -141,18 +185,19 @@
   width: 0;
   height: 4px;
   border-style: solid;
-  border-width: 8px 6px 4px;
-  border-color: #cacaca transparent transparent;
+  border-width: 8px 5px 4px;
+  border-color: var(--bf-line-strong) transparent transparent;
   background: transparent;
 }
 
 .flow-beeflow-canvas .node-wrap .title {
-  border-radius: var(--bf-node-radius) var(--bf-node-radius) 0 0;
-  height: 28px;
+  border-radius: calc(var(--bf-node-radius) - 1px) calc(var(--bf-node-radius) - 1px) 0 0;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-size: 12px;
+  font-weight: 500;
   color: #fff;
   padding: 0 var(--bf-node-padding);
   box-sizing: border-box;
@@ -164,9 +209,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 5px var(--bf-node-padding);
-  gap: 4px;
+  padding: 6px var(--bf-node-padding);
+  gap: 6px;
   font-size: 12px;
+  color: #434343;
   text-align: left;
 }
 
@@ -179,19 +225,24 @@
 }
 
 .flow-beeflow-canvas .content-chevron {
-  color: #a1a5ad;
+  color: #bfbfbf;
   flex-shrink: 0;
+  font-size: 14px;
 }
 
 .flow-beeflow-canvas .placeholder {
-  color: #a1a5ad;
+  color: var(--lc-text-secondary, #8c8c8c);
 }
 
 .flow-beeflow-canvas .close {
   display: none;
   cursor: pointer;
-  color: #8f959e;
+  color: rgb(255 255 255 / 85%);
   flex-shrink: 0;
+}
+
+.flow-beeflow-canvas .close:hover {
+  color: #fff;
 }
 
 .flow-beeflow-canvas .node-wrap .node-wrap-box:hover .close,
@@ -213,8 +264,8 @@
   min-height: 180px;
   height: auto;
   margin-top: 15px;
-  border-top: 2px solid #ccc;
-  border-bottom: 2px solid #ccc;
+  border-top: 2px solid var(--bf-line-strong);
+  border-bottom: 2px solid var(--bf-line-strong);
   position: relative;
 }
 
@@ -229,12 +280,15 @@
 .flow-beeflow-canvas .col-box::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 0;
   margin: auto;
   width: 2px;
   height: 100%;
-  background: #cacaca;
+  background: var(--bf-line);
 }
 
 .flow-beeflow-canvas .condition-node,
@@ -254,12 +308,15 @@
 .flow-beeflow-canvas .condition-node-box::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 0;
   margin: auto;
   width: 2px;
   height: 100%;
-  background: #cacaca;
+  background: var(--bf-line);
 }
 
 .flow-beeflow-canvas .condition-node-box > * {
@@ -271,61 +328,80 @@
   position: relative;
   width: var(--bf-node-width);
   min-height: var(--bf-node-height);
-  background: #fff;
+  background: var(--lc-panel, #fff);
+  border: 1px solid var(--lc-border, #e8e8e8);
   border-radius: var(--bf-node-radius);
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 2px 5px rgb(0 0 0 / 10%);
+  box-shadow: var(--lc-shadow-sm);
+  transition: box-shadow 0.18s, border-color 0.18s;
 }
 
-.flow-beeflow-canvas .auto-judge:hover {
-  box-shadow: 0 13px 27px rgb(0 0 0 / 10%);
+.flow-beeflow-canvas .auto-judge:hover:not(.is-selected) {
+  border-color: #d9d9d9;
+  box-shadow: var(--lc-shadow-md);
+}
+
+.flow-beeflow-canvas .auto-judge.is-selected:hover,
+.flow-beeflow-canvas .node-wrap .node-wrap-box.is-selected:hover {
+  border-color: color-mix(in srgb, var(--bf-node-accent) 62%, #fff);
 }
 
 .flow-beeflow-canvas .auto-judge .title-wrapper {
   font-size: 12px;
-  color: #2eb795;
-  height: 28px;
+  font-weight: 500;
+  color: #13c2c2;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 var(--bf-node-padding);
-  border-bottom: 1px solid #f6f6f7;
+  border-bottom: 1px solid var(--lc-border-light, #f0f0f0);
   width: 100%;
   box-sizing: border-box;
-  border-radius: var(--bf-node-radius) var(--bf-node-radius) 0 0;
+  border-radius: calc(var(--bf-node-radius) - 1px) calc(var(--bf-node-radius) - 1px) 0 0;
+  background: #f6ffed;
 }
 
 .flow-beeflow-canvas .auto-judge .priority-title {
-  font-size: 12px;
-  color: #52c41a;
+  font-size: 11px;
+  color: var(--lc-text-secondary, #8c8c8c);
   flex-shrink: 0;
+}
+
+.flow-beeflow-canvas .auto-judge.default-branch-node .title-wrapper {
+  color: #8c8c8c;
+  background: #fafafa;
 }
 
 .flow-beeflow-canvas .auto-judge.default-branch-node,
 .flow-beeflow-canvas .auto-judge.default-branch-node .title-wrapper {
-  color: #646a73;
+  color: #8c8c8c;
 }
 
 .flow-beeflow-canvas .content-wrapper {
   display: flex;
   width: 100%;
   align-items: center;
-  min-height: 44px;
+  min-height: 40px;
 }
 
 .flow-beeflow-canvas .sort-left,
 .flow-beeflow-canvas .sort-right {
   display: flex;
   align-items: center;
-  padding: 0 2px;
+  padding: 0 4px;
   cursor: pointer;
+  color: #8c8c8c;
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
 }
 
 .flow-beeflow-canvas .sort-left:hover,
 .flow-beeflow-canvas .sort-right:hover {
-  background: #efefef;
+  background: var(--lc-primary-light, #e6f4ff);
+  color: var(--lc-primary, #1677ff);
 }
 
 .flow-beeflow-canvas .add-branch {
@@ -336,20 +412,23 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  height: 30px;
-  padding: 0 10px;
-  border: none;
-  border-radius: 15px;
-  background: #fff;
-  color: #3296fa;
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid var(--lc-border, #e8e8e8);
+  border-radius: 14px;
+  background: var(--lc-panel, #fff);
+  color: var(--lc-primary, #1677ff);
   font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+  box-shadow: var(--lc-shadow-sm);
   transform: translateX(-50%);
+  transition: border-color 0.15s, background 0.15s;
 }
 
 .flow-beeflow-canvas .add-branch:hover {
-  box-shadow: 0 13px 27px rgb(0 0 0 / 10%);
+  border-color: #91caff;
+  background: var(--lc-primary-light, #e6f4ff);
 }
 
 .flow-beeflow-canvas .top-left-cover-line,
@@ -373,9 +452,14 @@
 }
 
 .flow-beeflow-canvas .top-left-cover-line,
-.flow-beeflow-canvas .bottom-left-cover-line { left: -1px; }
+.flow-beeflow-canvas .bottom-left-cover-line {
+  left: -1px;
+}
+
 .flow-beeflow-canvas .top-right-cover-line,
-.flow-beeflow-canvas .bottom-right-cover-line { right: -1px; }
+.flow-beeflow-canvas .bottom-right-cover-line {
+  right: -1px;
+}
 
 .flow-beeflow-canvas .add-node-btn-box {
   width: var(--bf-node-width);
@@ -389,19 +473,22 @@
 .flow-beeflow-canvas .add-node-btn-box::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 0;
   margin: auto;
   width: 2px;
   height: 100%;
-  background: #cacaca;
+  background: var(--bf-line);
 }
 
 .flow-beeflow-canvas .add-node-btn {
   display: flex;
   justify-content: center;
   width: 100%;
-  padding: 28px 0;
+  padding: 24px 0;
   position: relative;
   z-index: 1;
 }
@@ -410,49 +497,52 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   padding: 0;
   border: none;
   border-radius: 50%;
-  background: #3296fa;
+  background: var(--lc-primary, #1677ff);
   color: #fff;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+  box-shadow: 0 2px 6px rgb(22 119 255 / 35%);
+  transition: transform 0.15s, box-shadow 0.15s;
 }
 
 .flow-beeflow-canvas .add-node-btn .btn:hover {
-  box-shadow: 0 13px 27px rgb(0 0 0 / 10%);
+  transform: scale(1.06);
+  box-shadow: 0 4px 12px rgb(22 119 255 / 40%);
 }
 
 .flow-beeflow-canvas .node-wrap .node-wrap-box.end-node .title {
-  background: #a9b4cd;
+  background: #bfbfbf;
 }
 
 .flow-beeflow-canvas .node-wrap .node-wrap-box.end-node .content {
-  color: #646a73;
+  color: #595959;
   cursor: pointer;
 }
 
 .flow-beeflow-canvas .editable-title-input {
   width: 100%;
-  height: 18px;
+  height: 20px;
   margin: 0;
-  padding-left: 4px;
+  padding: 0 6px;
   font-size: 12px;
-  line-height: 18px;
-  color: rgba(0, 0, 0, 0.65);
+  line-height: 20px;
+  color: #262626;
   background-color: #fff;
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--lc-primary, #1677ff);
   border-radius: 4px;
+  outline: none;
 }
 
-/* ── 添加节点弹窗菜单（全局，el-popover teleport 内也生效） ── */
+/* ── 添加节点弹窗菜单 ── */
 .workflow-add-menu {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  padding: 4px 0;
+  gap: 8px;
+  padding: 2px 0;
 }
 
 .workflow-add-menu__item {
@@ -461,27 +551,28 @@
   gap: 10px;
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid #eef0f4;
-  border-radius: 10px;
+  border: 1px solid var(--lc-border-light, #f0f0f0);
+  border-radius: var(--lc-radius, 8px);
   background: #fff;
-  color: #1f2937;
+  color: #262626;
   font-size: 13px;
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
 }
 
 .workflow-add-menu__item:hover {
-  border-color: #93c5fd;
-  background: #f0f7ff;
+  border-color: #91caff;
+  background: var(--lc-primary-light, #e6f4ff);
+  box-shadow: var(--lc-shadow-sm);
 }
 
 .workflow-add-menu__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
   color: #fff;
   flex-shrink: 0;
 }
@@ -491,7 +582,8 @@
   white-space: nowrap;
 }
 
-/* popover 本身去掉多余 padding */
 .workflow-add-popover.el-popover {
-  padding: 12px !important;
+  padding: 10px !important;
+  border-radius: var(--lc-radius-lg, 12px) !important;
+  box-shadow: var(--lc-shadow-md) !important;
 }

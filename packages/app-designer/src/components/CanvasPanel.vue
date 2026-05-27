@@ -2,19 +2,11 @@
 import { computed, ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import {
-  ArrowDown,
-  ArrowUp,
-  CopyDocument,
-  Delete,
   Document,
   Plus,
-  Rank,
-  Refresh,
   RefreshLeft,
   RefreshRight,
-  View,
-  ZoomIn,
-  ZoomOut
+  View
 } from '@element-plus/icons-vue';
 import Draggable from 'vuedraggable';
 import SchemaRenderer from '@designer-renderer/SchemaRenderer.vue';
@@ -71,17 +63,6 @@ function onCanvasChange(event: {
           <el-button class="canvas-tool-btn" :icon="RefreshRight" text title="重做 (Ctrl+Y)" :disabled="!designer.canRedo" @click="designer.redo()" />
           <el-button class="canvas-tool-btn" :icon="Document" text title="Schema" @click="schemaDialogVisible = true" />
           <el-button class="canvas-tool-btn" :icon="View" text title="预览" @click="previewVisible = true" />
-        </div>
-        <span class="canvas-toolbar__divider" />
-        <div class="canvas-toolbar__group">
-          <el-button class="canvas-tool-btn" :icon="Rank" text title="选择" />
-          <el-button class="canvas-tool-btn" :icon="CopyDocument" text title="复制" />
-          <el-button class="canvas-tool-btn" :icon="Delete" text title="删除" @click="designer.removeSelectedNode()" />
-          <el-button class="canvas-tool-btn" :icon="ArrowUp" text title="上移" />
-          <el-button class="canvas-tool-btn" :icon="ArrowDown" text title="下移" />
-          <el-button class="canvas-tool-btn" :icon="Refresh" text title="刷新" @click="designer.resetSchema()" />
-          <el-button class="canvas-tool-btn" :icon="ZoomIn" text title="放大" />
-          <el-button class="canvas-tool-btn" :icon="ZoomOut" text title="缩小" />
         </div>
       </div>
     </div>

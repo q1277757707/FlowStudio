@@ -114,9 +114,14 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown));
 
       <!-- 流程设计工作区（v-if 避免隐藏时属性抽屉仍挂载到 body） -->
       <section v-if="workMode === 'workflow'" class="designer-workbench designer-workbench--workflow">
-        <div class="designer-subtoolbar">
-          <el-button :icon="Document" @click="workflowSchemaVisible = true">流程 JSON</el-button>
-          <el-button @click="workflow.resetTemplate()">重置</el-button>
+        <div class="workflow-panel__head">
+          <p class="workflow-panel__hint">点击节点配置审批人、条件与分支；拖拽空白区域平移画布</p>
+          <div class="canvas-toolbar">
+            <div class="canvas-toolbar__group workflow-panel__tools">
+              <el-button size="small" :icon="Document" @click="workflowSchemaVisible = true">流程 JSON</el-button>
+              <el-button size="small" @click="workflow.resetTemplate()">重置流程</el-button>
+            </div>
+          </div>
         </div>
         <WorkflowDesignerPanel />
       </section>

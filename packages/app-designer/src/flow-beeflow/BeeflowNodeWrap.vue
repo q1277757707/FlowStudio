@@ -5,6 +5,7 @@ import { formatAssigneeSummary } from '@designer-core/workflow';
 import { useWorkflowStore } from '../store/workflow';
 import BeeflowAddNode from './BeeflowAddNode.vue';
 import { formatBeeflowStartSummary } from './adapter';
+import { nodeAccentVars } from './accent';
 import { isBeeflowLinearNodeType, MIN_CONDITION_BRANCHES, NODE, NODE_COLOR } from './constants';
 import type { BeeflowConditionNode, BeeflowNode } from './types';
 
@@ -161,6 +162,25 @@ function patchGatewayChild(branch: BeeflowConditionNode, child: BeeflowNode | nu
   workflow.syncFromBeeflow();
 }
 
+const isCardSelected = computed(() => {
+  const sel = workflow.selection;
+  const key = props.nodeConfig.key;
+  if (props.nodeConfig.type === NODE.START) return sel.target === 'start';
+  if (!key) return false;
+  if (sel.target === 'step' || sel.target === 'branchStep') return sel.stepKey === key;
+  return false;
+});
+
+function isBranchSelected(branch: BeeflowConditionNode) {
+  const sel = workflow.selection;
+  if (!props.nodeConfig.key || !branch.key) return false;
+  return (
+    sel.target === 'branchCondition' &&
+    sel.blockKey === props.nodeConfig.key &&
+    sel.branchKey === branch.key
+  );
+}
+
 function onNodeCardClick(priorityLevel?: number) {
   const node = props.nodeConfig;
   if (node.type === NODE.START) { workflow.selectStart(); return; }
@@ -175,7 +195,11 @@ function onNodeCardClick(priorityLevel?: number) {
 
 <template>
   <div v-if="isBeeflowLinearNodeType(nodeConfig.type)" class="node-wrap">
-    <div class="node-wrap-box" :class="{ 'start-node': nodeConfig.type === NODE.START }">
+    <div
+      class="node-wrap-box"
+      :class="{ 'start-node': nodeConfig.type === NODE.START, 'is-selected': isCardSelected }"
+      :style="nodeAccentVars(nodeBgColor)"
+    >
       <div class="title" :style="{ background: nodeBgColor }">
         <span v-if="nodeConfig.type === NODE.START">{{ nodeConfig.name }}</span>
         <template v-else>
@@ -213,7 +237,12 @@ function onNodeCardClick(priorityLevel?: number) {
         <div v-for="(item, index) in nodeConfig.conditionNodes" :key="item.key ?? index" class="col-box">
           <div class="condition-node">
             <div class="condition-node-box">
-              <div v-if="isDefaultBranchNode(index)" class="auto-judge default-branch-node">
+              <div
+                v-if="isDefaultBranchNode(index)"
+                class="auto-judge default-branch-node"
+                :class="{ 'is-selected': isBranchSelected(item) }"
+                :style="nodeAccentVars(NODE_COLOR.END)"
+              >
                 <div class="title-wrapper">
                   <span class="editable-title">默认条件</span>
                   <span class="priority-title">优先级{{ item.priorityLevel }}</span>
@@ -222,7 +251,12 @@ function onNodeCardClick(priorityLevel?: number) {
                   <div class="content">未满足其他条件时，将进入默认流程</div>
                 </div>
               </div>
-              <div v-else class="auto-judge">
+              <div
+                v-else
+                class="auto-judge"
+                :class="{ 'is-selected': isBranchSelected(item) }"
+                :style="nodeAccentVars(NODE_COLOR.CONDITION)"
+              >
                 <div class="title-wrapper">
                   <input v-if="nodeNameInputList[index]" v-model="item.name" type="text" class="editable-title-input" maxlength="16" @blur="onNameInputBlur(index)" @focus="($event.target as HTMLInputElement).select()" />
                   <template v-else>
